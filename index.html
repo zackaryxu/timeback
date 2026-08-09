@@ -3,98 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TimeBack — free student-led time management workshops</title>
-<meta name="description" content="TimeBack is a free workshop where students teach students how to manage their time, plan their week, and beat procrastination. Run by two Carlmont High School students in San Mateo County.">
+<title>TimeBack — free time management workshops, taught by students</title>
+<meta name="description" content="TimeBack runs free time management workshops for students in San Mateo County. Started and run by Zackary Xu, a student at Carlmont High School.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy:#2F3C7E; --coral:#F96167; --gold:#F9E795; --moss:#97BC62;
-    --ink:#33333B; --paper:#FFFCF4; --rule:#DCE7F5; --margin:#F2B8BE;
+    --paper:#FDFBF3;
+    --rule:#E6E7E0;
+    --ink:#2E2E32;
+    --soft:#5F6068;
+    --accent:#42506B;
   }
   *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
   body{
     margin:0; background:var(--paper); color:var(--ink);
-    font-family:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
-    font-size:17px; line-height:1.65;
-    background-image:repeating-linear-gradient(to bottom,transparent 0 33px,var(--rule) 33px 34px);
+    font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:19px; line-height:1.75;
+    background-image:repeating-linear-gradient(to bottom,transparent 0 37px,var(--rule) 37px 38px);
   }
-  .sheet{max-width:720px; margin:0 auto; padding:0 24px 80px; position:relative}
-  .sheet::before{
-    content:""; position:absolute; top:0; bottom:0; left:6px; width:2px;
-    background:var(--margin);
-  }
-  header{padding:64px 0 8px}
+  .sheet{max-width:600px; margin:0 auto; padding:0 28px 96px}
   h1{
-    font-family:"Permanent Marker",cursive; font-weight:400;
-    font-size:clamp(44px,9vw,72px); line-height:1.05; margin:0; color:var(--navy);
-    transform:rotate(-1.5deg);
+    font-family:"Permanent Marker",cursive; font-weight:400; color:var(--accent);
+    font-size:clamp(38px,8vw,52px); line-height:1.1; margin:0;
+    padding-top:88px; letter-spacing:.5px;
   }
-  h1 .b{color:var(--coral); display:block}
-  .tag{font-size:clamp(17px,2.6vw,20px); margin:24px 0 0; max-width:34ch}
-  .hl{background:linear-gradient(transparent 55%, var(--gold) 55%); padding:0 2px}
+  .sub{color:var(--soft); margin:14px 0 0; font-size:20px}
   h2{
-    font-family:"Permanent Marker",cursive; font-weight:400; color:var(--navy);
-    font-size:26px; margin:52px 0 14px; transform:rotate(-.6deg);
+    font-size:15px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--accent); margin:58px 0 10px;
   }
-  p{margin:0 0 16px}
-  ol{margin:0; padding:0; list-style:none; counter-reset:step}
-  ol li{
-    counter-increment:step; position:relative; padding-left:52px; margin-bottom:18px;
+  p{margin:0 0 18px; max-width:52ch}
+  a{color:var(--accent); text-decoration:none; border-bottom:1px solid #C9CEDA}
+  a:hover{border-bottom-color:var(--accent)}
+  footer{margin-top:64px; color:var(--soft); font-size:17px}
+  @media(max-width:520px){
+    body{font-size:18px}
+    h1{padding-top:60px}
+    .sheet{padding:0 22px 72px}
   }
-  ol li::before{
-    content:counter(step); position:absolute; left:0; top:1px;
-    width:32px; height:32px; border-radius:50%; background:var(--coral); color:#fff;
-    font-family:"Permanent Marker",cursive; font-size:18px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  ol li:nth-child(2)::before{background:var(--navy)}
-  ol li b{color:var(--navy)}
-  .note{
-    background:var(--gold); padding:20px 22px; margin:36px 0;
-    transform:rotate(-.8deg); box-shadow:2px 3px 7px rgba(0,0,0,.13);
-  }
-  .note p{margin:0}
-  .note b{font-family:"Permanent Marker",cursive; font-weight:400; font-size:20px; color:var(--navy)}
-  .who{background:#CDE7F0; padding:20px 22px; margin:36px 0; transform:rotate(.6deg); box-shadow:2px 3px 7px rgba(0,0,0,.11)}
-  .who p{margin:0}
-  a{color:var(--navy)}
-  footer{
-    margin-top:56px; font-family:"Permanent Marker",cursive; color:var(--coral);
-    font-size:19px; transform:rotate(-.7deg);
-  }
-  footer a{color:var(--coral); text-decoration:none; border-bottom:2px solid var(--gold)}
-  @media(max-width:520px){ body{font-size:16px} header{padding-top:44px} }
 </style>
 </head>
 <body>
 <main class="sheet">
 
-  <header>
-    <h1>Your time.<span class="b">Your questions.</span></h1>
-    <p class="tag">A <span class="hl">free workshop</span> where students teach students how to manage their time, plan their week, and beat procrastination.</p>
-  </header>
+  <h1>TimeBack</h1>
+  <p class="sub">Free time management workshops, taught by students.</p>
 
-  <h2>What a session looks like</h2>
-  <ol>
-    <li><b>The jar.</b> A demo about why some weeks fit and some fall apart. It takes about a minute to land and nobody forgets it.</li>
-    <li><b>Your own week.</b> Everyone writes down what actually matters in theirs, and takes it home.</li>
-    <li><b>Ask us anything.</b> Open questions about high school, answered by two people currently in it.</li>
-  </ol>
-  <p>It runs 30 to 45 minutes, it's completely free, we bring all the materials, and we adjust it depending on the group.</p>
+  <h2>Who we are</h2>
+  <p>I'm Zackary Xu, a student at Carlmont High School in Belmont, California. I started TimeBack and run it. My friend Brandon Axelson helps me put on the sessions.</p>
 
-  <div class="note">
-    <p><b>Next up</b><br>
-    The Hideout, Belmont &middot; September 2026</p>
-  </div>
+  <h2>How it started</h2>
+  <p>I'd been building a productivity app, and kept running into the same thing. People don't just need better tools. They need better habits, and nobody really teaches that part.</p>
+  <p>So we started teaching it ourselves, to the people around us who needed it, which turned out to be almost everyone.</p>
 
-  <h2>Why we started it</h2>
-  <p>A lot of our classmates, even the ones in Honors and AP, lose hours every week and never get taught how not to. Going from middle school to Carlmont, the workload jumped more than we expected, and we ended up building our own systems the hard way. This is the version we wish someone had just shown us.</p>
+  <h2>What we do</h2>
+  <p>A session runs 30 to 45 minutes. Students figure out where their time actually goes, sort out what matters in their week, and leave with one thing they're going to change. It's hands-on, not a lecture, and we adjust it depending on the group.</p>
 
-  <div class="who">
-    <p>TimeBack is run by <b>Zackary Xu</b> and <b>Brandon Axelson</b>, students at Carlmont High School in Belmont, California. We've held sessions at Carlmont and around San Mateo County, and we're always looking for the next place to run one.</p>
-  </div>
+  <h2>Our plans</h2>
+  <p>We're bringing these to teen programs, libraries, and schools around San Mateo County this year. Every session is free and we bring all the materials.</p>
 
   <footer>
     Want one at your program? <a href="mailto:zackaryxu@gmail.com">zackaryxu@gmail.com</a>
