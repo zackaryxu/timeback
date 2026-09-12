@@ -434,6 +434,7 @@
 .page-chapters .page-content h2{font-size:28px;line-height:1.3;letter-spacing:-.025em;font-weight:650;text-wrap:pretty}
 .page-chapters .page-content>.join-roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px;padding-block:36px 0;border-top:1px solid var(--rule)}
 .page-chapters .join-role{scroll-margin-top:32px}
+.page-chapters .join-role>.text-link{margin-top:22px;line-height:1.5}
 .page-chapters .join-role>p{font-size:19px;line-height:1.65;margin-top:16px}
 .page-chapters .page-content>.join-support{padding-block:56px}
 .page-chapters .join-support dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px;margin:26px 0 0}
