@@ -90,9 +90,16 @@
     finally{busy=false;controls.forEach(c=>c.disabled=false);$('save').textContent='Save changes';update();$('status').focus();}
   };
   window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue='';}});
-  const fragment=new URLSearchParams(location.hash.slice(1)),invite=fragment.get('access');
-  if(invite){history.replaceState(null,'',location.pathname+location.search);login(invite);}
-  else if(new URLSearchParams(location.search).get('preview')==='1')$('try-preview').click();
-  else if(sessionStorage.getItem(storageKey))login(sessionStorage.getItem(storageKey));
+  function openInvite() {
+    const invite=new URLSearchParams(location.hash.slice(1)).get('access');
+    if(!invite)return false;
+    history.replaceState(null,'',location.pathname+location.search);login(invite);return true;
+  }
+  // A link opened while already on /members/ changes only the fragment.
+  window.addEventListener('hashchange',openInvite);
+  if(!openInvite()) {
+    if(new URLSearchParams(location.search).get('preview')==='1')$('try-preview').click();
+    else if(sessionStorage.getItem(storageKey))login(sessionStorage.getItem(storageKey));
+  }
   if(!api){$('access-key').disabled=true;$('sign-in').querySelector('button').disabled=true;$('sign-in').querySelector('button').textContent='Member sign-in coming soon';}
 })();
