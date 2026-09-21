@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  const heicModuleUrl=new URL('./vendor/heic-to-1.5.2.js',document.currentScript.src).href;
+  let heicDecoder;
   const $ = id => document.getElementById(id);
   const test = new URLSearchParams(location.search).get('test') === '1';
   const local = ['127.0.0.1', 'localhost'].includes(location.hostname);
@@ -109,19 +111,28 @@
   }
   async function preparePhoto(file) {
     if(file.size>8*1024*1024)throw new Error('Images must be under 8 MB.');
-    const unreadable='This photo could not be read. Choose a still JPEG, PNG or WebP image, or export the photo as JPEG and try again.';
+    const unreadable='This photo could not be read. Choose a still JPEG, PNG, WebP or HEIC image, or export the photo as JPEG and try again.';
     // Sniff bytes rather than trusting MIME/extension (some phones omit MIME).
-    const bytes=new Uint8Array(await file.slice(0,30).arrayBuffer());
+    const bytes=new Uint8Array(await file.slice(0,128).arrayBuffer());
     const ascii=(start,end)=>String.fromCharCode(...bytes.slice(start,end));
-    const supported=(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)
+    const heic=ascii(4,8)==='ftyp'&&Array.from({length:Math.floor((bytes.length-8)/4)},(_,i)=>8+i*4).filter(p=>p!==12).some(p=>['heic','heix','hevc','hevx','mif1','msf1'].includes(ascii(p,p+4)));
+    const supported=heic||(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)
       || (bytes[0]===137&&ascii(1,4)==='PNG'&&bytes[4]===13&&bytes[5]===10&&bytes[6]===26&&bytes[7]===10)
       || (ascii(0,4)==='RIFF'&&ascii(8,12)==='WEBP');
     if(!supported)throw new Error(unreadable);
     if(ascii(8,12)==='WEBP'&&ascii(12,16)==='VP8X'&&(bytes[20]&2))throw new Error(unreadable);
-    const url=URL.createObjectURL(file), img=new Image();
+    let url=URL.createObjectURL(file);const img=new Image();
     let canvas;
     try {
-      await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
+      const load=()=>new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
+      try{await load();}catch(error){
+        if(!heic)throw error;
+        // Lazy, same-origin dependency. The original never leaves this device.
+        heicDecoder ||= import(heicModuleUrl).catch(error=>{heicDecoder=null;throw error;});
+        const {heicTo}=await heicDecoder;
+        const converted=await heicTo({blob:file,type:'image/jpeg',quality:0.9});
+        URL.revokeObjectURL(url);url=URL.createObjectURL(converted);await load();
+      }
       if(!img.naturalWidth||!img.naturalHeight)throw new Error();
       const scale=Math.min(1,1800/img.naturalWidth,1800/img.naturalHeight);
       canvas=document.createElement('canvas');

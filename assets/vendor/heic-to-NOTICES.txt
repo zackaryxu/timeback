@@ -1,0 +1,17 @@
+HEIC photo conversion
+
+This site distributes heic-to 1.5.2 as an unmodified, separately loaded JavaScript
+module under GNU LGPL version 3 or later. See heic-to-LICENSE.txt alongside it.
+It is loaded only for HEIC/HEIF photos that the browser cannot read natively.
+
+Source, build instructions and modification/replacement information:
+https://github.com/hoppergee/heic-to/tree/f37af866f9aa6212ddc84b67a279c9f2386aba4f
+https://github.com/hoppergee/heic-to/blob/f37af866f9aa6212ddc84b67a279c9f2386aba4f/README.md
+The wrapper bundles libheif 1.22.2 and libde265 1.0.16; corresponding source:
+https://github.com/strukturag/libheif/tree/v1.22.2
+https://github.com/strukturag/libde265/tree/v1.0.16
+GNU GPL v3 text: https://www.gnu.org/licenses/gpl-3.0.txt
+GNU LGPL v3 text: https://www.gnu.org/licenses/lgpl-3.0.txt
+
+The separately served module assets/vendor/heic-to-1.5.2.js may be replaced with
+a compatible modified version. No third-party conversion server receives photos.
