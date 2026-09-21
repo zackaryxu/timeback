@@ -12,7 +12,8 @@
   document.title = `${testMode ? 'Test · ' : ''}${requestedFlow === 'chapter-only' ? 'Chapter Only' : 'New Chapter Lead'} · TimeBack`;
   let chapterOnly = false;
   let existingIdentity = null;
-  const invitationKey = `timeback-invitation:${testMode ? 'test' : 'real'}:${requestedFlow}`;
+  const referralCode = params.get('ref') || '';
+  const invitationKey = `timeback-invitation:${testMode ? 'test' : 'real'}:${requestedFlow}${referralCode ? ':ref:'+referralCode : ''}`;
   const configuredApi = (document.querySelector('meta[name="founding-api"]')?.content || '').trim().replace(/\/$/,'');
   const api = local ? (testMode ? '/api/test-chapters' : '/api/chapters') : configuredApi ? configuredApi + (testMode ? '/test' : '') : '';
   const kitUrl = (document.querySelector('meta[name="kit-url"]')?.content || '').trim();
@@ -24,11 +25,43 @@
   } else {
     try { invitation = sessionStorage.getItem(invitationKey) || ''; } catch { /* Storage optional. */ }
   }
+  if(referralCode&&!invitation){
+    invitation=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');
+    try{sessionStorage.setItem(invitationKey,invitation);}catch{}
+  }
+  let referralStarted=false,referralVerifiedEmail='',requiresEmailVerification=false;
   const f = {
     name: $('lead-name'), school: $('school'), city: $('city'), chapter: $('chapter-name'),
     email: $('email'), bio: $('bio'), message: $('message'), projects: $('projects'),
   };
   const chosen = { date: '', format: '' };
+  const referralStatus = text => { $('referral-verification-status').textContent=text; };
+  async function referralRequest(path,body,bearer=invitation){
+    const response=await fetch(api+path,{method:body?'POST':'GET',headers:{Authorization:`Bearer ${bearer}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store'});
+    const result=await response.json();
+    if(!response.ok)throw new Error(response.status===429?'Please wait before requesting another code. If the limit persists, contact TimeBack.':result.code==='referral_unavailable'?'This referral link is no longer available. Contact TimeBack.':'Could not confirm this request. Check your details and try again.');
+    return result;
+  }
+  $('referral-send-code').addEventListener('click',async()=>{
+    if(!f.email.value.trim()||!f.email.checkValidity()){f.email.reportValidity();return;}
+    const button=$('referral-send-code');button.disabled=true;
+    try{
+      const result=await referralRequest('/referral/email-code',{email:f.email.value.trim()});
+      $('referral-code-fields').hidden=false;
+      referralStatus(result.status==='test-only'?`Test code: ${result.testCode}`:result.status==='sent'?'Verification code sent.':'Delivery is not yet confirmed. Check your inbox before requesting another code.');
+      setTimeout(()=>{button.disabled=false;},60000);
+    }catch(e){referralStatus(e.message);button.disabled=false;}
+  });
+  $('referral-verify-code').addEventListener('click',async()=>{
+    const button=$('referral-verify-code');button.disabled=true;
+    try{
+      const address=f.email.value.trim();
+      await referralRequest('/referral/verify-email',{email:address,code:$('referral-code').value.trim()});
+      if(f.email.value.trim()!==address)throw new Error('Your email changed. Verify the new address.');
+      referralVerifiedEmail=address.toLowerCase();referralStatus('Email verified.');$('referral-code-fields').hidden=true;
+    }catch(e){referralStatus(e.message);}finally{button.disabled=false;}
+  });
+  f.email.addEventListener('input',()=>{referralVerifiedEmail='';if(requiresEmailVerification)referralStatus('Verify this email before continuing.');});
 
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const addDays = (n) => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + n); return d; };
@@ -148,6 +181,9 @@
       }
       $('details-error').hidden = !firstInvalid;
       if (firstInvalid) { $('details-error').textContent = 'Complete the chapter details and enter a valid email address.'; firstInvalid.focus(); }
+      if(!firstInvalid&&requiresEmailVerification&&referralVerifiedEmail!==f.email.value.trim().toLowerCase()){
+        $('details-error').hidden=false;$('details-error').textContent='Verify your email before continuing.';$('referral-send-code').focus();return false;
+      }
       return !firstInvalid;
     }
     if (n === 2) {
@@ -165,7 +201,14 @@
     if (next && valid(Number(next.dataset.next) - 1)) show(Number(next.dataset.next));
     if (back) show(Number(back.dataset.back));
   });
-  $('begin').addEventListener('click', () => { $('welcome').hidden = true; $('build').hidden = false; show(1); });
+  $('begin').addEventListener('click', async () => {
+    if(referralCode&&!referralStarted){
+      $('begin').disabled=true;
+      try{await referralRequest('/referral/start',{session:invitation},referralCode);referralStarted=true;}
+      catch(e){$('invitation-loading').hidden=false;$('invitation-loading').textContent=e.message;$('begin').disabled=false;return;}
+    }
+    $('welcome').hidden = true; $('build').hidden = false; show(1);
+  });
 
   // Preserve this tab's draft through an accidental refresh, without transmitting
   // personal fields or inserting them into a shareable URL.
@@ -388,13 +431,28 @@
       .then(async response => { if (!response.ok) throw new Error(); return response.json(); })
       .then(receipt => {
         if (receipt.identity) applyIdentity(receipt.identity, receipt.requiresEmail === true);
+        requiresEmailVerification=receipt.requiresEmailVerification===true;
+        $('referral-verification').hidden=!requiresEmailVerification;
         if (receipt.claimed) restoreClaim(receipt);
         else { $('begin').disabled = false; $('welcome').hidden = false; }
         $('invitation-loading').hidden = true;
       })
       .catch(() => { $('invitation-loading').textContent = 'Invitation unavailable. Reopen your link to retry.'; });
   }
-  if (testMode) {
+  if(referralCode){
+    (async()=>{
+      if(!/^[A-Za-z0-9_-]{43}$/.test(referralCode))throw new Error('Invalid referral link.');
+      const referrer=await referralRequest('/referral',undefined,referralCode);
+      // Loading is read-only. A unique private setup session starts on Begin.
+      $('referred-by').textContent=`Invited by ${referrer.name}`;$('referred-by').hidden=false;
+      requiresEmailVerification=true;$('referral-verification').hidden=false;
+      // Resume only this referral's stored session, never another invitation.
+      const existing=await fetch(api,{headers:{Authorization:`Bearer ${invitation}`},cache:'no-store'});
+      if(existing.ok){const receipt=await existing.json();referralStarted=true;if(receipt.claimed){restoreClaim(receipt);$('invitation-loading').hidden=true;return;}}
+      else if(existing.status!==401)throw new Error('Setup is temporarily unavailable. Reopen your link to retry.');
+      $('welcome').hidden=false;$('begin').disabled=false;$('invitation-loading').hidden=true;
+    })().catch(e=>{$('invitation-loading').textContent=e.message;});
+  } else if (testMode) {
     const bar = document.createElement('div'); bar.className = 'test-controls';
     bar.innerHTML = '<span>Test mode · ' + (requestedFlow === 'chapter-only' ? 'Chapter Only' : 'New Chapter Lead') + '</span><button type="button">Start a new test</button>';
     bar.querySelector('button').hidden = !local;

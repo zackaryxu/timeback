@@ -10,6 +10,7 @@
   <noscript><p>Enable JavaScript to open your chapter invitation.</p></noscript>
   <section id="welcome" aria-labelledby="welcome-title" hidden>
     <h1 id="welcome-title">Welcome to TimeBack.</h1>
+    <p id="referred-by" hidden></p>
     <p class="lead">You’ve been invited to join a small group of student leaders bringing TimeBack to their schools and communities.</p>
     <div class="letter-body">
       <p>TimeBack exists because learning to manage time should be part of growing up. Starting a chapter means taking a role in that mission: helping more students reflect on what matters and make time for it.</p>
@@ -50,6 +51,14 @@
             <label class="field"><span>Chapter name</span><input id="chapter-name" placeholder="Generated from your school or city" maxlength="180"></label>
           </details>
           <label class="field contact-field"><span>Email address</span><input id="email" type="email" autocomplete="email" placeholder="Email address" aria-describedby="email-purpose" required><small id="email-purpose">Use an email you check regularly. Your private chapter owner link, setup updates, and important chapter communications will be sent here. Not displayed publicly.</small></label>
+          <div id="referral-verification" hidden>
+            <button type="button" class="quiet" id="referral-send-code">Verify email</button>
+            <div id="referral-code-fields" hidden>
+              <label class="field"><span>Email verification code</span><input id="referral-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}"></label>
+              <button type="button" class="quiet" id="referral-verify-code">Confirm email</button>
+            </div>
+            <p id="referral-verification-status" role="status"></p>
+          </div>
           <section class="bio-section" aria-labelledby="bio-heading">
           <h2 id="bio-heading">Chapter Lead profile</h2>
           <div class="bio-fields">
