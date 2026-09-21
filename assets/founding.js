@@ -376,7 +376,7 @@
     f.bio.value = identity.bio || ''; f.message.value = identity.message || ''; f.projects.value = identity.projects || '';
     document.querySelector('.recognition-rewards>div:last-child').hidden = true;
     document.querySelector('.recognition-rewards').style.gridTemplateColumns = '1fr';
-    $('welcome-title').textContent = 'Set up your chapter.';
+    $('welcome-title').textContent = identity.name?.trim() ? `Welcome, ${identity.name.trim()}.` : 'Set up your chapter.';
     $('welcome').querySelectorAll('p, .letter-signature').forEach(el => el.hidden = true);
     document.querySelector('.declaration p:nth-child(2)').firstChild.textContent = 'Starting a TimeBack chapter in ';
     paint('card');
