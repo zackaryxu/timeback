@@ -363,11 +363,11 @@
     finish({ chapter: chapter.name, firstGathering: chapter.firstGathering }, receipt);
     if (chapter.status !== 'official' && deadline < iso(new Date())) $('hold-note').textContent = 'The Upcoming reservation has expired. Contact TimeBack about next steps.';
   }
-  function applyIdentity(identity) {
+  function applyIdentity(identity, requiresEmail = false) {
     chapterOnly = true; existingIdentity = identity;
     f.name.value = identity.name; f.name.required = false;
     f.name.closest('p').hidden = true;
-    f.email.required = false; f.email.closest('label').hidden = true;
+    f.email.required = requiresEmail; f.email.closest('label').hidden = !requiresEmail;
     document.querySelector('.bio-section').hidden = true;
     $('rev-bio').closest('div').hidden = true;
     $('rev-message').closest('div').hidden = true;
@@ -385,7 +385,7 @@
     $('begin').disabled = true;
     await fetch(api, { headers: { Authorization: `Bearer ${invitation}` }, cache: 'no-store' })
       .then(async response => { if (!response.ok) throw new Error(); return response.json(); })
-      .then(receipt => { if (receipt.identity) applyIdentity(receipt.identity); if (receipt.claimed) restoreClaim(receipt); else $('begin').disabled = false; })
+      .then(receipt => { if (receipt.identity) applyIdentity(receipt.identity, receipt.requiresEmail === true); if (receipt.claimed) restoreClaim(receipt); else $('begin').disabled = false; })
       .catch(() => { $('begin').textContent = 'Invitation unavailable. Reopen your link to retry.'; });
   }
   if (testMode) {
