@@ -18,7 +18,7 @@
   const api = local ? (testMode ? '/api/test-chapters' : '/api/chapters') : configuredApi ? configuredApi + (testMode ? '/test' : '') : '';
   const kitUrl = (document.querySelector('meta[name="kit-url"]')?.content || '').trim();
   const preview = testMode;
-  let invitation = new URLSearchParams(location.hash.slice(1)).get('invite') || '';
+  let invitation = referralCode ? '' : new URLSearchParams(location.hash.slice(1)).get('invite') || '';
   if (invitation) {
     history.replaceState(null, '', location.pathname + location.search);
     try { sessionStorage.setItem(invitationKey, invitation); } catch { /* Link can be reopened. */ }
@@ -440,6 +440,7 @@
       .catch(() => { $('invitation-loading').textContent = 'Invitation unavailable. Reopen your link to retry.'; });
   }
   if(referralCode){
+    if(testMode){const bar=document.createElement('div');bar.className='test-controls';bar.textContent='Test mode · Referral setup';document.querySelector('main').before(bar);}
     (async()=>{
       if(!/^[A-Za-z0-9_-]{43}$/.test(referralCode))throw new Error('Invalid referral link.');
       const referrer=await referralRequest('/referral',undefined,referralCode);
