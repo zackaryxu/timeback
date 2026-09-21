@@ -7,7 +7,7 @@
   <title>Chapter management · TimeBack</title>
   <link rel="icon" href="../assets/timeback-logo.svg">
   <link rel="stylesheet" href="../assets/chapter-owner.css">
-  <script src="../assets/chapter-owner.js" defer></script>
+  <script src="../assets/chapter-owner.js?v=profile-email-v1" defer></script>
 </head>
 <body>
   <header><a class="brand" href="../"><img src="../assets/timeback-logo.svg" alt="" width="28" height="36">TimeBack</a><span>Chapter management</span></header>
@@ -27,6 +27,19 @@
           <label>Meeting photos <span>Optional</span><input id="report-photos" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" multiple><small>Up to six photos, 8 MB each. Private unless you separately choose to publish them.</small></label></div>
           <label class="consent"><input id="meeting-confirmed" type="checkbox" required>I confirm that this chapter held its first info meeting.</label>
           <button type="submit">Report first meeting</button><p id="report-feedback" role="status"></p>
+        </form>
+      </section>
+      <p id="profile-email-status" role="status" hidden></p>
+      <section id="profile-email-section" aria-labelledby="profile-email-heading" hidden>
+        <h2 id="profile-email-heading">Profile access email</h2>
+        <p>Verify your email to receive your private profile-editing link when your chapter becomes official.</p>
+        <p id="profile-email-address" class="section-note" hidden></p>
+        <form id="profile-email-form">
+          <label>Verification code<input id="profile-email-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required aria-describedby="profile-email-feedback"></label>
+          <button id="profile-email-send" type="button" class="secondary">Send code</button>
+          <button id="profile-email-verify" type="submit">Verify</button>
+          <p id="profile-email-feedback" role="status"></p>
+          <p id="profile-email-test-code" class="section-note" hidden></p>
         </form>
       </section>
       <section aria-labelledby="details-heading">

@@ -12,6 +12,41 @@
   if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   try { if (token) sessionStorage.setItem(key, token); else token = sessionStorage.getItem(key) || ''; } catch { /* Access survives this page only. */ }
   let record;
+  let emailBusy = false, emailAttempted = false, emailRetryAt = 0, emailTimer;
+  const needsEmailVerification = () => record?.profileEmailVerificationRequired === true && record.emailVerified !== true;
+  function emailControls() {
+    const remaining = Math.max(0, Math.ceil((emailRetryAt - Date.now()) / 1000));
+    $('profile-email-send').disabled = emailBusy || remaining > 0 || !needsEmailVerification();
+    $('profile-email-send').textContent = remaining ? `Resend in ${remaining}s` : emailAttempted ? 'Resend' : 'Send code';
+    $('profile-email-verify').disabled = emailBusy || !needsEmailVerification();
+    $('profile-email-code').disabled = emailBusy || !needsEmailVerification();
+  }
+  function paintEmail(data) {
+    const verified = data.emailVerified === true;
+    const required = data.profileEmailVerificationRequired === true;
+    $('profile-email-section').hidden = !required || verified;
+    $('profile-email-address').textContent = data.maskedEmail ? `Saved email: ${data.maskedEmail}` : '';
+    $('profile-email-address').hidden = !data.maskedEmail;
+    const messages = {
+      'not-enabled': 'Email verification saved. Profile access email is not enabled yet.',
+      'awaiting-verification': 'Email verification saved. Profile access email has not been sent.',
+      pending: 'Email verification saved. Profile access email is pending.',
+      sent: 'Email verification saved. Your private profile-editing link has been emailed.',
+      unknown: 'Email verification saved. Profile access email delivery could not be confirmed.',
+      failed: 'Email verification saved. Profile access email could not be sent. Contact TimeBack for help.'
+    };
+    const showStatus = verified && (required || (data.recognitionEmailStatus && data.recognitionEmailStatus !== 'not-enabled'));
+    $('profile-email-status').hidden = !showStatus;
+    $('profile-email-status').textContent = showStatus ? messages[data.recognitionEmailStatus] || 'Email verification saved. Your profile-editing link will be sent after your chapter becomes official and its page is published.' : '';
+    if (!needsEmailVerification()) {
+      clearInterval(emailTimer);
+      $('profile-email-code').value = '';
+      $('profile-email-feedback').textContent = '';
+      $('profile-email-test-code').textContent = '';
+      $('profile-email-test-code').hidden = true;
+    }
+    emailControls();
+  }
   const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
   const pretty = value => new Date(value + 'T12:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
   async function request(path = '', payload) {
@@ -22,6 +57,7 @@
   }
   function paint(data) {
     record = data;
+    paintEmail(data);
     const c = data.chapter;
     $('workspace').hidden = false; $('access-status').hidden = true; $('test-notice').hidden = !test;
     $('chapter-title').textContent = c.name;
@@ -177,6 +213,51 @@
     if (!$('meeting-date').disabled) payload.meetingDate = $('meeting-date').value;
     return request('', payload);
   }));
+  $('profile-email-send').addEventListener('click', async () => {
+    if (emailBusy || !needsEmailVerification() || Date.now() < emailRetryAt) return;
+    emailBusy = true; emailAttempted = true; emailControls();
+    $('profile-email-feedback').textContent = 'Requesting a code…';
+    $('profile-email-test-code').textContent = ''; $('profile-email-test-code').hidden = true;
+    try {
+      const result = await request('/email-code', {});
+      const seconds = Number(result.retryAfter);
+      emailRetryAt = Date.now() + (Number.isFinite(seconds) && seconds > 0 ? seconds : 60) * 1000;
+      clearInterval(emailTimer);
+      emailTimer = setInterval(() => { emailControls(); if (Date.now() >= emailRetryAt) clearInterval(emailTimer); }, 1000);
+      const messages = {
+        sent: 'A verification code was sent to your saved email address.',
+        pending: 'Your verification email is pending. Sending is not yet confirmed.',
+        unknown: 'Verification email delivery could not be confirmed. Check your inbox before requesting another code.',
+        failed: 'The verification email could not be sent. Please try again after the wait.',
+        'test-only': test ? 'Isolated test mode. No email was sent.' : 'No verification email was sent. Please contact TimeBack.'
+      };
+      $('profile-email-feedback').textContent = messages[result.status] || 'Verification email delivery could not be confirmed. Check your inbox before requesting another code.';
+      if (test && result.status === 'test-only' && /^[0-9]{6}$/.test(result.testCode || '')) {
+        $('profile-email-test-code').textContent = `Isolated test code: ${result.testCode}`;
+        $('profile-email-test-code').hidden = false;
+      }
+    } catch {
+      $('profile-email-feedback').textContent = 'The code request could not be confirmed. Check your inbox before trying again.';
+    } finally { emailBusy = false; emailControls(); }
+  });
+  $('profile-email-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    if (emailBusy || !needsEmailVerification()) return;
+    const code = $('profile-email-code').value.trim();
+    if (!/^[0-9]{6}$/.test(code)) { $('profile-email-feedback').textContent = 'Enter the six-digit code from your email.'; return; }
+    emailBusy = true; emailControls();
+    $('profile-email-feedback').textContent = 'Verifying…';
+    try {
+      const result = await request('/verify-email', {code});
+      // Update only email state: a verification response must not reset draft edits,
+      // selected report files, photo captions, or an in-flight report/upload receipt.
+      for (const field of ['profileEmailVerificationRequired', 'recognitionEmailStatus', 'emailVerified', 'maskedEmail']) record[field] = result[field];
+      paintEmail(record);
+      if (record.emailVerified !== true) $('profile-email-feedback').textContent = 'Email verification was not confirmed. Check the code and try again.';
+    } catch {
+      $('profile-email-feedback').textContent = 'Email verification could not be confirmed. Check the code, try again, or request a new code when available.';
+    } finally { emailBusy = false; emailControls(); }
+  });
   const reportUploads=new Map();
   $('report-form').addEventListener('submit', event => submit(event, 'report-feedback', async()=>{
     const date=$('report-date').value,confirmed=$('meeting-confirmed').checked,input=$('report-photos'),files=[...input.files];
