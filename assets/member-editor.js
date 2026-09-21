@@ -1,8 +1,9 @@
 (() => {
   'use strict';
   const $=id=>document.getElementById(id);
-  const api=document.querySelector('meta[name="editor-api"]').content.replace(/\/$/,'');
-  const storageKey='timeback-member-access';
+  const testMode=new URLSearchParams(location.search).get('test')==='1';
+  const api=document.querySelector('meta[name="editor-api"]').content.replace(/\/$/,'')+(testMode?'/test':'');
+  const storageKey='timeback-member-access'+(testMode?'-test':'');
   let key='',profile,version,baseline='',demo=false,photoBitmap=null,photoData=null,busy=false;
   const demoProfile={id:'preview',name:'Your name',role:'TimeBack team',intro:'Your team introduction appears here.',bio:'I enjoy helping people turn big goals into small, practical steps. At TimeBack, I’m learning to make those conversations engaging and useful.',links:[],photo:null,portraitUrl:null};
   const status=(message,error=false)=>{$('status').textContent=message;$('status').classList.toggle('error',error);};
@@ -40,15 +41,15 @@
     $('initials').textContent=profile.name.split(' ').map(v=>v[0]).join('').toUpperCase();
     $('bio').value=profile.bio||'';$('links').replaceChildren();(profile.links||[]).forEach(addLink);
     const base=new URL('../',location.href);portrait(profile.photo?new URL(profile.photo,base).href:profile.portraitUrl);
-    $('public-profile').hidden=demo;$('public-profile').href=new URL(`about/${profile.id}/`,base).href;
+    $('public-profile').hidden=demo||testMode;$('public-profile').href=new URL(`about/${profile.id}/`,base).href;
     $('undo-photo').hidden=true;$('crop-controls').hidden=true;$('photo').value='';
     baseline=JSON.stringify(values());update();
-    $('contribution-section').hidden=false;
+    $('contribution-section').hidden=testMode;
     $('contribution-form').querySelectorAll('input,textarea,button').forEach(el=>el.disabled=demo);
     $('refresh-contributions').disabled=demo;
     $('contribution-history').replaceChildren();
     if(demo)$('contribution-status').textContent='Preview only. Reports are not submitted.';
-    else refreshContributions();
+    else if(!testMode)refreshContributions();
   }
   async function request(method,body,route='profile') {
     if(!api)throw new Error('Member sign-in is not connected yet. You can try the editor preview below.');
@@ -112,7 +113,7 @@
     busy=true;update();$('save').textContent='Saving…';status('');
     // Lock inputs during the request so a successful response cannot erase newer typing.
     const controls=[...$('profile-form').querySelectorAll('input,textarea,button')];controls.forEach(c=>c.disabled=true);
-    try{const result=await request('PUT',{version,...edit});loadProfile(result);status('Saved. Your profile will update when the website finishes publishing, usually in a few minutes.');}
+    try{const result=await request('PUT',{version,...edit});loadProfile(result);status(testMode?'Test profile saved. Nothing was published.':'Saved. Your profile will update when the website finishes publishing, usually in a few minutes.');}
     catch(error){status(error.name==='TimeoutError'?'The connection timed out. Your changes are still here. Reload your public profile before retrying.':error.message,true);}
     finally{busy=false;controls.forEach(c=>c.disabled=false);$('save').textContent='Save changes';update();$('status').focus();}
   };
