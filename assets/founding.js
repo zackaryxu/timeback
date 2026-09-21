@@ -385,8 +385,13 @@
     $('begin').disabled = true;
     await fetch(api, { headers: { Authorization: `Bearer ${invitation}` }, cache: 'no-store' })
       .then(async response => { if (!response.ok) throw new Error(); return response.json(); })
-      .then(receipt => { if (receipt.identity) applyIdentity(receipt.identity, receipt.requiresEmail === true); if (receipt.claimed) restoreClaim(receipt); else $('begin').disabled = false; })
-      .catch(() => { $('begin').textContent = 'Invitation unavailable. Reopen your link to retry.'; });
+      .then(receipt => {
+        if (receipt.identity) applyIdentity(receipt.identity, receipt.requiresEmail === true);
+        if (receipt.claimed) restoreClaim(receipt);
+        else { $('begin').disabled = false; $('welcome').hidden = false; }
+        $('invitation-loading').hidden = true;
+      })
+      .catch(() => { $('invitation-loading').textContent = 'Invitation unavailable. Reopen your link to retry.'; });
   }
   if (testMode) {
     const bar = document.createElement('div'); bar.className = 'test-controls';
@@ -410,6 +415,7 @@
         try { sessionStorage.setItem(invitationKey, invitation); } catch {}
       }
       await loadInvitation();
-    })().catch(() => { $('begin').textContent = 'Test setup unavailable. Refresh to retry.'; });
+    })().catch(() => { $('invitation-loading').textContent = 'Test setup unavailable. Refresh to retry.'; });
   } else if (api && invitation) loadInvitation();
+  else $('invitation-loading').textContent = 'Open your private invitation link to set up a chapter.';
 })();
