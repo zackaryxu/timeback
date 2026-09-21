@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="founding-api" content="https://msdawliajqdgungoaqvc.supabase.co/functions/v1/timeback-chapters"><meta name="kit-url" content="https://docs.google.com/presentation/d/1XqRMtxQGW7LpOXM_6TurpvC9Yrvp8PRwLDbIam1tBTQ/edit?slide=id.p1#slide=id.p1"><title>Limited Fall 2026 Cohort · TimeBack</title><link rel="icon" href="../assets/timeback-logo.svg"><link rel="stylesheet" href="../assets/founding.css?v=cohort-creation-v6"><script src="../assets/founding.js?v=cohort-creation-v6" defer></script></head>
+<body>
+<header class="founding-header">
+  <a class="brand" href="../"><img src="../assets/timeback-logo.svg" width="38" height="46" alt="">TimeBack <span>Limited Fall 2026 Cohort</span></a>
+</header>
+
+<main id="main">
+  <section id="welcome" aria-labelledby="welcome-title">
+    <h1 id="welcome-title">Welcome to TimeBack.</h1>
+    <p class="lead">You’ve been invited to join a small group of student leaders bringing TimeBack to their schools and communities.</p>
+    <div class="letter-body">
+      <p>TimeBack exists because learning to manage time should be part of growing up. Starting a chapter means taking a role in that mission: helping more students reflect on what matters and make time for it.</p>
+      <p>This fall, we’re keeping the cohort small so we can work directly with each Chapter Lead. We provide the curriculum and digital materials; you bring the people and the perspective of your community.</p>
+      <p>We look forward to supporting the chapter you build.</p>
+    </div>
+    <p class="letter-signature"><strong>Zackary Xu</strong><span>Founder, TimeBack</span></p>
+    <div class="actions cover-action"><button type="button" class="primary big" id="begin">Set up my chapter <span aria-hidden="true">→</span></button></div>
+
+  </section>
+
+  <section id="build" hidden aria-label="Chapter setup">
+    <div class="build-grid">
+      <form id="chapter-form" novalidate>
+        <ol class="steps" aria-label="Setup progress">
+          <li data-step="1" class="on"><span>1</span>Chapter</li>
+          <li data-step="2"><span>2</span>Meeting</li>
+          <li data-step="3"><span>3</span>Review</li>
+        </ol>
+
+        <fieldset class="step on" data-step="1">
+          <h1>Chapter setup</h1>
+          <details class="chapter-explanation">
+            <summary>What is a TimeBack chapter?</summary>
+            <p>A TimeBack chapter brings students together to learn and practice time management. Chapter Leads have the freedom to shape meetings, workshops, and activities around their school or community, with curriculum and digital materials provided by TimeBack. Chapters can start small and develop at their own pace.</p>
+          </details>
+
+          <div class="declaration">
+            <p>I’m <input id="lead-name" class="sentence-input" aria-label="Full name" autocomplete="name" placeholder="your name" maxlength="100" required>,</p>
+            <p>starting a TimeBack chapter in <input id="city" class="sentence-input" aria-label="City" aria-controls="city-suggestions" autocomplete="address-level2" placeholder="city" maxlength="120" required></p>
+            <div class="suggestions" id="city-suggestions" hidden></div>
+            <p>at <input id="school" class="sentence-input" aria-label="School or community" aria-controls="school-suggestions" autocomplete="organization" placeholder="school or community" maxlength="160" required>.</p>
+            <div class="suggestions" id="school-suggestions" hidden></div>
+          </div>
+          <p class="directory-note">Suggestions from the <a href="https://nces.ed.gov/programs/edge/Geographic/SchoolLocations" target="_blank" rel="noopener">NCES public-school directory</a>. Any school or community may be entered.</p>
+          <details class="chapter-name-edit">
+            <summary>Edit chapter name</summary>
+            <label class="field"><span>Chapter name</span><input id="chapter-name" placeholder="Generated from your school or community" maxlength="180"></label>
+          </details>
+          <label class="field contact-field"><span>Email address</span><input id="email" type="email" autocomplete="email" placeholder="Email address" aria-describedby="email-purpose" required><small id="email-purpose">Use an email you check regularly. Your private chapter owner link, setup updates, and important chapter communications will be sent here. Not displayed publicly.</small></label>
+          <section class="bio-section" aria-labelledby="bio-heading">
+          <h2 id="bio-heading">Chapter Lead profile</h2>
+          <div class="bio-fields">
+            <label class="field"><span>Bio</span><textarea id="bio" rows="3" maxlength="400"></textarea></label>
+            <label class="field"><span>Chapter message</span><textarea id="message" rows="3" maxlength="400"></textarea></label>
+            <details class="chapter-name-edit"><summary>Add other projects or organizations</summary><label class="field"><span>Other projects or organizations</span><input id="projects" maxlength="300" placeholder="Optional"></label></details>
+          </div>
+          <p class="fine">Shown on the chapter page. The profile joins the TimeBack team page after the first meeting.</p>
+          </section>
+          <p class="error" id="details-error" role="alert" hidden></p>
+          <div class="actions"><button type="button" class="primary" data-next="2">Continue to first meeting <span aria-hidden="true">→</span></button></div>
+        </fieldset>
+
+        <fieldset class="step" data-step="2" hidden>
+          <h1>First meeting</h1>
+          <p class="step-note" id="meeting-policy"></p>
+
+          <div class="pick" id="dates" role="group" aria-label="Choose a first gathering date"></div>
+          <button type="button" class="linkish" id="other-day">Choose another date</button>
+          <label class="field date-field" id="other-day-field" hidden><span>First gathering date</span><input id="date" type="date"></label>
+
+          <div class="format-row" role="group" aria-label="Optional gathering format">
+            <span>Format <em>Optional</em></span>
+            <div class="pick small" id="formats">
+              <button type="button" data-format="In person">In person</button>
+              <button type="button" data-format="Online">Online</button>
+            </div>
+          </div>
+
+          <p class="fine">The meeting date appears on the chapter page.</p>
+          <p class="error" id="date-error" role="alert" hidden></p>
+          <div class="actions"><button type="button" class="quiet" data-back="1">Back</button><button type="button" class="primary" data-next="3">Review chapter <span aria-hidden="true">→</span></button></div>
+        </fieldset>
+
+        <fieldset class="step" data-step="3" hidden>
+          <h1>Review chapter</h1>
+          <p class="step-note" id="review-policy"></p>
+          <dl class="review">
+            <div><dt>Chapter</dt><dd id="rev-chapter"></dd></div>
+            <div><dt>Community</dt><dd id="rev-community"></dd></div>
+            <div><dt>Chapter Lead</dt><dd id="rev-lead"></dd></div>
+            <div><dt>Bio</dt><dd id="rev-bio"></dd></div>
+            <div><dt>Chapter message</dt><dd id="rev-message"></dd></div>
+            <div><dt>First gathering</dt><dd id="rev-when"></dd></div>
+          </dl>
+          <button type="button" class="linkish" data-back="1">Edit chapter details and bio</button>
+          <label class="check"><input type="checkbox" id="listing-consent"><span>I authorize TimeBack to publish this upcoming chapter record and its Chapter Lead feature.</span></label>
+          <p class="error" id="form-error" role="alert" hidden></p>
+          <div class="actions"><button type="button" class="quiet" data-back="2">Back</button><button type="submit" class="primary big">Create Upcoming Chapter <span aria-hidden="true">→</span></button></div>
+        </fieldset>
+      </form>
+
+      <aside class="preview" aria-label="Upcoming chapter preview">
+        <p class="preview-label">Preview</p>
+        <iframe id="chapter-frame" src="chapter-preview.html" title="Chapter page preview"></iframe>
+        <button type="button" class="linkish" id="expand-preview">Open full preview</button>
+      </aside>
+    </div>
+  </section>
+
+  <section id="done" hidden aria-labelledby="done-title">
+    <div class="celebration" id="celebration" aria-hidden="true"></div>
+    <header class="completion-heading">
+      <h1 id="done-title">Congratulations, your chapter is set up.</h1>
+      <p id="done-sub"></p>
+    </header>
+    <ol class="completion-path" aria-label="Chapter journey">
+      <li class="path-complete"><span class="path-marker" aria-hidden="true">✓</span><div><h2>Chapter setup complete</h2></div></li>
+      <li class="path-next"><span class="path-marker" aria-hidden="true">2</span><div><h2>Hold and report your first meeting</h2><p id="next-meeting"></p></div></li>
+      <li class="path-rewards"><span class="path-marker" aria-hidden="true"></span><div class="recognition-rewards">
+        <div><svg class="reward-symbol" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M16 3 26 7v9c0 6-10 13-10 13S6 22 6 16V7Z"/><path d="m11 15 4 4 7-8"/></svg><h3>Official chapter recognition</h3></div>
+        <div><svg class="reward-symbol" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="3"/><circle cx="12" cy="13" r="3"/><path d="M7 23v-2a5 5 0 0 1 10 0v2M21 12h4m-4 5h4"/></svg><h3>Your profile on the TimeBack team page</h3></div>
+      </div></li>
+    </ol>
+    <div class="completion-actions">
+      <a class="primary disabled-link" id="intro-slides" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true" tabindex="-1">Open first-meeting materials <span aria-hidden="true">↗</span></a>
+      <a class="completion-chapter-link disabled-link" id="chapter-page" href="#" target="_blank" rel="noopener" aria-disabled="true" tabindex="-1">View your chapter page <span aria-hidden="true">↗</span></a>
+    </div>
+    <p id="slides-unavailable" class="completion-status" hidden>First-meeting materials are not connected yet.</p>
+    <p id="email-confirmation" class="completion-status" hidden></p>
+    <p id="test-owner-access" hidden><button type="button" id="open-test-owner">Open test owner page</button></p>
+    <p id="hold-note" class="cohort-reservation"></p>
+    <p class="preview-note" id="preview-note" hidden>Preview only · No chapter has been published.</p>
+  </section>
+</main>
+<dialog id="full-preview"><div class="preview-toolbar"><span>Chapter page preview</span><button type="button" class="quiet" id="close-preview">Close</button></div><iframe id="full-chapter-frame" src="chapter-preview.html" title="Full chapter page preview"></iframe></dialog>
+</body></html>

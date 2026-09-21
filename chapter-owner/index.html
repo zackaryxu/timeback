@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+  <meta name="chapter-api" content="https://msdawliajqdgungoaqvc.supabase.co/functions/v1/timeback-chapters">
+  <title>Chapter management · TimeBack</title>
+  <link rel="icon" href="../assets/timeback-logo.svg">
+  <link rel="stylesheet" href="../assets/chapter-owner.css">
+  <script src="../assets/chapter-owner.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="../"><img src="../assets/timeback-logo.svg" alt="" width="28" height="36">TimeBack</a><span>Chapter management</span></header>
+  <main>
+    <p id="test-notice" class="notice" hidden>Test chapter · Changes remain in the isolated test environment. No email is sent.</p>
+    <p id="access-status" role="status">Opening chapter…</p>
+    <div id="workspace" hidden>
+      <div class="intro"><p id="chapter-status" class="eyebrow"></p><h1 id="chapter-title"></h1>
+        <p class="privacy">Private owner access. Anyone with this link can manage the chapter. Do not share it.</p>
+        <nav><a id="public-page" target="_blank" rel="noopener noreferrer">View chapter page ↗</a><a href="https://docs.google.com/presentation/d/1XqRMtxQGW7LpOXM_6TurpvC9Yrvp8PRwLDbIam1tBTQ/edit" target="_blank" rel="noopener noreferrer">First-meeting materials ↗</a></nav>
+      </div>
+      <section aria-labelledby="meeting-heading">
+        <h2 id="meeting-heading">First meeting</h2><p id="deadline"></p>
+        <p id="report-result" role="status" hidden></p>
+        <form id="report-form">
+          <div class="fields"><label>Meeting date<input id="report-date" type="date" required></label>
+          <label>Photo link <span>Optional</span><input id="photo-url" type="url" placeholder="https://" maxlength="2000"><small>Shared with TimeBack only. Photos encouraged, not required.</small></label></div>
+          <label class="consent"><input id="meeting-confirmed" type="checkbox" required>I confirm that this chapter held its first info meeting.</label>
+          <button type="submit">Report first meeting</button><p id="report-feedback" role="status"></p>
+        </form>
+      </section>
+      <section aria-labelledby="details-heading">
+        <h2 id="details-heading">Chapter details</h2>
+        <form id="details-form">
+          <label>Chapter name<input id="chapter-name" required maxlength="180"></label>
+          <div class="fields"><label>School or community<input id="school" required maxlength="160"></label><label>City<input id="city" required maxlength="120"></label></div>
+          <label id="schedule-field">First-meeting date<input id="meeting-date" type="date" required></label>
+          <label>Chapter message<textarea id="message" rows="3" maxlength="400"></textarea></label>
+          <button type="submit">Save changes</button><p id="save-feedback" role="status"></p>
+        </form>
+      </section>
+      <section aria-labelledby="photos-heading">
+        <h2 id="photos-heading">Chapter photos</h2>
+        <p class="section-note">Upload photos, then choose where they appear. JPEG, PNG or WebP, up to 8 MB.</p>
+        <label class="upload-label">Add photos<input id="photo-files" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+        <div id="photo-list" class="owner-photos"></div><p id="photo-feedback" role="status"></p>
+      </section>
+      <section aria-labelledby="team-heading">
+        <h2 id="team-heading">Chapter team</h2><p id="assigned-lead" class="section-note"></p>
+        <div id="team-list"></div>
+        <details id="team-editor"><summary>Add a person</summary>
+          <form id="team-form"><input id="team-id" type="hidden">
+            <div class="fields"><label>Name<input id="team-name" required maxlength="100"></label><label>Chapter role<input id="team-role" required maxlength="100" placeholder="e.g. Workshop Lead"></label></div>
+            <label>Short bio <span>Optional</span><textarea id="team-bio" maxlength="400" rows="2"></textarea></label>
+            <label>Photo <span>Optional</span><select id="team-photo"></select></label>
+            <label class="consent"><input id="team-permission" type="checkbox" required>This person agreed to this public listing and any included photo.</label>
+            <button type="submit">Publish person</button> <button class="secondary" type="button" id="cancel-team">Cancel</button>
+          </form>
+        </details><p id="team-feedback" role="status"></p>
+      </section>
+      <section aria-labelledby="activities-heading">
+        <h2 id="activities-heading">Activities</h2>
+        <div id="activity-list"></div>
+        <details id="activity-editor"><summary>Add an activity</summary>
+          <form id="activity-form"><input id="activity-id" type="hidden">
+            <label>Title<input id="activity-title" required maxlength="160"></label>
+            <label>Date<input id="activity-date" type="date" required></label>
+            <label>Description<textarea id="activity-description" rows="4" maxlength="2000" required></textarea></label>
+            <fieldset><legend>Photos <span>Optional, up to six</span></legend><div id="activity-photos" class="photo-options"></div></fieldset>
+            <label class="consent"><input id="activity-permission" type="checkbox">I have permission to publish any selected photos.</label>
+            <button type="submit">Publish activity</button> <button class="secondary" type="button" id="cancel-activity">Cancel</button>
+          </form>
+        </details><p id="activity-feedback" role="status"></p>
+      </section>
+      <footer>For access or contact-email changes, contact <a href="mailto:zackaryxu@jointimeback.org">zackaryxu@jointimeback.org</a>.</footer>
+    </div>
+  </main>
+</body></html>
