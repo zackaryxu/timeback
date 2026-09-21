@@ -48,7 +48,7 @@
   async function submit(event, statusId, work) {
     event.preventDefault();
     const button = event.target.querySelector('button'); button.disabled = true; $(statusId).textContent = 'Saving…';
-    try { paint(await work()); $(statusId).textContent = 'Saved.'; }
+    try { paint(await work()); $(statusId).textContent = record.publication?.status === 'pending' ? 'Saved. Website publication is pending.' : 'Saved.'; }
     catch (error) { $(statusId).textContent = error.message; }
     finally { button.disabled = false; }
   }
@@ -61,7 +61,7 @@
     return img;
   }
   async function content(payload, feedback) {
-    try { const result=await request('/content',payload); paint(result); $(feedback).textContent=payload.action==='submit' ? 'Submitted for TimeBack review. Not published to Highlights.' : 'Saved.'; }
+    try { const result=await request('/content',payload); paint(result); $(feedback).textContent=payload.action==='submit' ? 'Submitted for TimeBack review. Not published to Highlights.' : result.publication?.status === 'pending' ? 'Saved. Website publication is pending.' : 'Saved.'; }
     catch(error) { $(feedback).textContent=error.message; }
   }
   function action(label, callback) {
