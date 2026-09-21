@@ -43,10 +43,16 @@
     $('public-profile').hidden=demo;$('public-profile').href=new URL(`about/${profile.id}/`,base).href;
     $('undo-photo').hidden=true;$('crop-controls').hidden=true;$('photo').value='';
     baseline=JSON.stringify(values());update();
+    $('contribution-section').hidden=false;
+    $('contribution-form').querySelectorAll('input,textarea,button').forEach(el=>el.disabled=demo);
+    $('refresh-contributions').disabled=demo;
+    $('contribution-history').replaceChildren();
+    if(demo)$('contribution-status').textContent='Preview only. Reports are not submitted.';
+    else refreshContributions();
   }
-  async function request(method,body) {
+  async function request(method,body,route='profile') {
     if(!api)throw new Error('Member sign-in is not connected yet. You can try the editor preview below.');
-    const response=await fetch(`${api}/profile`,{method,headers:{Authorization:`Bearer ${key}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store',signal:AbortSignal.timeout(45000)});
+    const response=await fetch(`${api}/${route}`,{method,headers:{Authorization:`Bearer ${key}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store',signal:AbortSignal.timeout(45000)});
     const result=await response.json();if(!response.ok)throw new Error(result.error||'Please try again in a moment.');return result;
   }
   async function login(value) {
@@ -57,8 +63,29 @@
     finally{button.disabled=false;button.textContent='Open my profile';}
   }
   $('sign-in').addEventListener('submit',e=>{e.preventDefault();login($('access-key').value);});
+  async function refreshContributions() {
+    const owner=key;
+    try {
+      const result=await request('GET',null,'contributions');
+      if(owner!==key)return;
+      $('contribution-history').replaceChildren();
+      for(const item of result.submissions){const li=document.createElement('li');li.textContent=`#${item.number} · ${item.status.replaceAll('-',' ')} · ${item.createdAt.slice(0,10)}`;$('contribution-history').append(li);}
+      $('contribution-status').textContent=result.submissions.length?'':'No submissions yet.';
+    }catch(error){if(owner===key)$('contribution-status').textContent=error.message;}
+  }
+  $('refresh-contributions').onclick=()=>refreshContributions();
+  $('contribution-form').onsubmit=async event=>{
+    event.preventDefault();if(demo)return;
+    const owner=key;
+    const controls=[...$('contribution-form').querySelectorAll('input,textarea,button')];
+    const payload={summary:$('contribution-summary').value,when:$('contribution-when').value,wording:$('contribution-wording').value,evidence:$('contribution-evidence').value.split('\n').map(v=>v.trim()).filter(Boolean)};
+    controls.forEach(el=>el.disabled=true);
+    try {const result=await request('POST',payload,'contributions');if(owner!==key)return;$('contribution-form').reset();await refreshContributions();if(owner===key)$('contribution-status').textContent=`Submission #${result.number} received for review. Nothing has been published.`;}
+    catch(error){if(owner===key)$('contribution-status').textContent=error.message;}
+    finally{if(owner===key)controls.forEach(el=>el.disabled=demo);}
+  };
   $('try-preview').onclick=()=>{demo=true;loadProfile({profile:structuredClone(demoProfile),version:null});status('');};
-  $('sign-out').onclick=()=>{if(dirty()&&!confirm('Leave without saving your changes?'))return;sessionStorage.removeItem(storageKey);key='';profile=null;demo=false;photoBitmap?.close();photoBitmap=null;$('access-key').value='';$('editor').hidden=true;$('welcome').hidden=false;$('sign-out').hidden=true;status('');};
+  $('sign-out').onclick=()=>{if(dirty()&&!confirm('Leave without saving your changes?'))return;sessionStorage.removeItem(storageKey);key='';profile=null;demo=false;photoBitmap?.close();photoBitmap=null;$('access-key').value='';$('editor').hidden=true;$('welcome').hidden=false;$('sign-out').hidden=true;$('contribution-section').hidden=true;$('contribution-form').reset();$('contribution-history').replaceChildren();status('');};
   $('add-link').onclick=()=>addLink();$('profile-form').addEventListener('input',update);
   let cropSequence=0;
   async function cropPhoto() {

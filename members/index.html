@@ -9,5 +9,16 @@
 <section class="field-section"><div class="section-heading"><h2>Find you elsewhere</h2><span>03</span></div><p class="hint">Add your LinkedIn, portfolio or another public link.</p><div id="links"></div><button id="add-link" type="button" class="quiet">+ Add a link</button><p class="fine">Up to three links. These will be public.</p></section><p class="identity-note">Your name and TimeBack role are managed by the team. <a href="mailto:zackaryxu@jointimeback.org?subject=TimeBack%20profile%20details">Need a correction?</a></p>
 <div class="save-bar"><div><span id="save-state">No changes yet</span><p class="fine">Saved updates appear after the website finishes publishing.</p></div><button type="submit" class="primary" id="save" disabled>Save changes</button></div></form>
 <aside class="preview-area" aria-label="Profile preview"><div class="preview-label"><span>Live preview</span><span class="preview-dot" aria-hidden="true"></span></div><article class="profile-preview"><div id="portrait" class="portrait"><img id="portrait-image" alt="" hidden><span id="initials"></span></div><h2 id="member-name"></h2><p id="member-role"></p><p id="member-intro"></p><div id="bio-preview"></div><div id="links-preview"></div></article><p class="fine preview-footnote">Your introduction and contributions stay on your public profile.</p><a id="public-profile" class="quiet" target="_blank" rel="noopener noreferrer" hidden>View public profile</a></aside></div></section>
+<section id="contribution-section" hidden>
+<h2>Contributions</h2><p>Submit work for review before it appears on your profile.</p>
+<form id="contribution-form">
+<label for="contribution-summary">What did you contribute?</label><textarea id="contribution-summary" maxlength="2000" rows="4" required></textarea>
+<label for="contribution-when">When?</label><input id="contribution-when" maxlength="120" required>
+<label for="contribution-evidence">Supporting links or photo links (optional, one per line)</label><textarea id="contribution-evidence" rows="3"></textarea>
+<label for="contribution-wording">Suggested profile wording (optional)</label><textarea id="contribution-wording" maxlength="600" rows="3"></textarea>
+<button class="primary" type="submit" id="submit-contribution">Submit for review</button>
+</form><p id="contribution-status" role="status" aria-live="polite"></p>
+<button class="quiet" id="refresh-contributions" type="button">Refresh submissions</button><ul id="contribution-history"></ul>
+</section>
 <p id="status" role="status" aria-live="polite" tabindex="-1"></p><noscript><p>Please enable JavaScript to edit your profile.</p></noscript>
 </main><footer>Made for the people behind TimeBack.</footer></body></html>
