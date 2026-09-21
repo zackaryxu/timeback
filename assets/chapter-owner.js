@@ -107,14 +107,45 @@
     });
     $('activity-date').max=today();
   }
+  async function preparePhoto(file) {
+    if(file.size>8*1024*1024)throw new Error('Images must be under 8 MB.');
+    const unreadable='This photo could not be read. Choose a still JPEG, PNG or WebP image, or export the photo as JPEG and try again.';
+    // Sniff bytes rather than trusting MIME/extension (some phones omit MIME).
+    const bytes=new Uint8Array(await file.slice(0,30).arrayBuffer());
+    const ascii=(start,end)=>String.fromCharCode(...bytes.slice(start,end));
+    const supported=(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)
+      || (bytes[0]===137&&ascii(1,4)==='PNG'&&bytes[4]===13&&bytes[5]===10&&bytes[6]===26&&bytes[7]===10)
+      || (ascii(0,4)==='RIFF'&&ascii(8,12)==='WEBP');
+    if(!supported)throw new Error(unreadable);
+    if(ascii(8,12)==='WEBP'&&ascii(12,16)==='VP8X'&&(bytes[20]&2))throw new Error(unreadable);
+    const url=URL.createObjectURL(file), img=new Image();
+    let canvas;
+    try {
+      await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
+      if(!img.naturalWidth||!img.naturalHeight)throw new Error();
+      const scale=Math.min(1,1800/img.naturalWidth,1800/img.naturalHeight);
+      canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+      canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+      const ctx=canvas.getContext('2d');
+      if(!ctx)throw new Error();
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.85));
+      if(!blob||blob.type!=='image/jpeg'||!blob.size||blob.size>8*1024*1024)throw new Error();
+      return blob;
+    } catch {throw new Error(unreadable);}
+    finally {img.src='';URL.revokeObjectURL(url);if(canvas){canvas.width=0;canvas.height=0;}}
+  }
   $('photo-files').addEventListener('change',async()=>{
     const files=$('photo-files');files.disabled=true;
     try {
       for(const file of files.files){
-        if(file.size>8*1024*1024)throw new Error('Images must be under 8 MB.');
+        $('photo-feedback').textContent='Preparing photo…';
+        const photo=await preparePhoto(file);
         $('photo-feedback').textContent='Uploading…';
-        const response=await fetch(api+'/photos',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':file.type},body:file});
-        const result=await response.json();if(!response.ok)throw new Error(result.error);paint(result);
+        const response=await fetch(api+'/photos',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':photo.type},body:photo});
+        const result=await response.json();if(!response.ok)throw new Error(result.error||'The photo could not be uploaded. Please try again.');paint(result);
       }
       $('photo-feedback').textContent='Uploaded. Select where each photo should appear.';
     }catch(error){$('photo-feedback').textContent=error.message;}finally{files.disabled=false;files.value='';}
@@ -135,7 +166,30 @@
     if (!$('meeting-date').disabled) payload.meetingDate = $('meeting-date').value;
     return request('', payload);
   }));
-  $('report-form').addEventListener('submit', event => submit(event, 'report-feedback', () => request('/report', {date:$('report-date').value, confirmed:$('meeting-confirmed').checked, photoUrl:$('photo-url').value})));
+  const reportUploads=new Map();
+  $('report-form').addEventListener('submit', event => submit(event, 'report-feedback', async()=>{
+    const date=$('report-date').value,confirmed=$('meeting-confirmed').checked,input=$('report-photos'),files=[...input.files];
+    if(files.length>6)throw new Error('Select up to six meeting photos.');
+    input.disabled=true;
+    try{
+      const photoIds=[];
+      for(const file of files){
+        let saved=reportUploads.get(file);
+        if(!saved){saved={key:crypto.randomUUID()};reportUploads.set(file,saved);}
+        if(!saved.id){
+          $('report-feedback').textContent='Uploading meeting photos…';
+          const photo=await preparePhoto(file);
+          const response=await fetch(api+'/photos',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':photo.type,'Idempotency-Key':saved.key},body:photo});
+          const data=await response.json();
+          if(!response.ok||!data.uploadedPhotoId)throw new Error(data.error||'The photo upload could not be confirmed. Please retry.');
+          saved.id=data.uploadedPhotoId;
+        }
+        photoIds.push(saved.id);
+      }
+      const result=await request('/report',{date,confirmed,photoIds});
+      input.value='';reportUploads.clear();return result;
+    }finally{input.disabled=false;}
+  }));
   if (!api) { $('access-status').textContent = 'Chapter management is not live yet.'; return; }
   if (!token) { $('access-status').textContent = 'Open your private owner link to manage your chapter. For access, contact zackaryxu@jointimeback.org.'; return; }
   request().then(paint).catch(error => { $('access-status').textContent = error.message; });

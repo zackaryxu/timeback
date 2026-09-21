@@ -24,7 +24,7 @@
         <p id="report-result" role="status" hidden></p>
         <form id="report-form">
           <div class="fields"><label>Meeting date<input id="report-date" type="date" required></label>
-          <label>Photo link <span>Optional</span><input id="photo-url" type="url" placeholder="https://" maxlength="2000"><small>Shared with TimeBack only. Photos encouraged, not required.</small></label></div>
+          <label>Meeting photos <span>Optional</span><input id="report-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple><small>Up to six photos, 8 MB each. Private unless you separately choose to publish them.</small></label></div>
           <label class="consent"><input id="meeting-confirmed" type="checkbox" required>I confirm that this chapter held its first info meeting.</label>
           <button type="submit">Report first meeting</button><p id="report-feedback" role="status"></p>
         </form>
