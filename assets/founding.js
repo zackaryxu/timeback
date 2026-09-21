@@ -56,14 +56,15 @@
 
   function setText(id, value, fallback = '') { const el = $(id); if (el) el.textContent = value || fallback; }
   function setOptional(id, value) { const el = $(id); if (!el) return; el.textContent = value; el.hidden = !value; }
-  const chapterName = () => f.chapter.value.trim() || (f.school.value.trim() ? `TimeBack at ${f.school.value.trim()}` : 'Your chapter');
+  const generatedChapterName = () => f.school.value.trim() ? `TimeBack at ${f.school.value.trim()}` : f.city.value.trim() ? `TimeBack in ${f.city.value.trim()}` : '';
+  const chapterName = () => f.chapter.value.trim() || generatedChapterName() || 'Your chapter';
   const placeLine = () => f.city.value.trim();
-  const defaultBio = () => f.name.value.trim() ? `${f.name.value.trim()} leads ${f.school.value.trim() ? chapterName() : 'a local TimeBack chapter'}.` : 'Leading a local TimeBack chapter.';
+  const defaultBio = () => f.name.value.trim() ? `${f.name.value.trim()} leads ${generatedChapterName() ? chapterName() : 'a local TimeBack chapter'}.` : 'Leading a local TimeBack chapter.';
   const defaultMessage = () => 'Our chapter brings students together to explore time management and make time for what matters.';
   let bioEdited = false, messageEdited = false;
   function syncDefaults() {
     f.bio.placeholder = f.name.value.trim() ? defaultBio() : 'Optional';
-    f.message.placeholder = f.school.value.trim() ? defaultMessage() : 'Optional';
+    f.message.placeholder = generatedChapterName() ? defaultMessage() : 'Optional';
   }
   const bioText = () => chapterOnly ? (existingIdentity?.bio || '') : f.bio.value.trim() || defaultBio();
   const messageText = () => chapterOnly ? (existingIdentity?.message || '') : f.message.value.trim() || defaultMessage();
@@ -80,9 +81,9 @@
     setText(`${prefix}-initials`, initials());
     setText(`${prefix}-role`, f.school.value.trim() ? `Chapter Lead · ${f.school.value.trim()}` : 'Chapter Lead');
     setOptional(`${prefix}-bio`, f.name.value.trim() ? bioText() : '');
-    setOptional(`${prefix}-message`, f.school.value.trim() ? messageText() : '');
+    setOptional(`${prefix}-message`, generatedChapterName() ? messageText() : '');
     if (prefix === 'card') setOptional('card-projects', f.projects.value.trim());
-    const chapter = { name: f.chapter.value.trim() || (f.school.value.trim() ? chapterName() : ''), location: placeLine(), lead: f.name.value.trim(), initials: initials(), bio: f.name.value.trim() ? bioText() : '', message: f.school.value.trim() ? messageText() : '', projects: f.projects.value.trim(), date: chosen.date ? new Date(`${chosen.date}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + (chosen.format ? ` · ${chosen.format}` : '') : '' };
+    const chapter = { name: f.chapter.value.trim() || generatedChapterName(), location: placeLine(), lead: f.name.value.trim(), initials: initials(), bio: f.name.value.trim() ? bioText() : '', message: generatedChapterName() ? messageText() : '', projects: f.projects.value.trim(), date: chosen.date ? new Date(`${chosen.date}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + (chosen.format ? ` · ${chosen.format}` : '') : '' };
     chapter.role = 'Chapter Lead';
     for (const id of ['chapter-frame', 'full-chapter-frame']) $(id)?.contentWindow?.postMessage({ type:'timeback-chapter-preview', chapter }, location.origin);
   }
@@ -96,7 +97,7 @@
 
   let renamed = false;
   f.chapter.addEventListener('input', () => { renamed = Boolean(f.chapter.value.trim()); });
-  f.school.addEventListener('input', () => { if (!renamed) f.chapter.value = f.school.value.trim() ? `TimeBack at ${f.school.value.trim()}` : ''; });
+  for (const input of [f.school, f.city]) input.addEventListener('input', () => { if (!renamed) f.chapter.value = generatedChapterName(); });
   f.bio.addEventListener('input', () => { bioEdited = Boolean(f.bio.value.trim()); });
   f.message.addEventListener('input', () => { messageEdited = Boolean(f.message.value.trim()); });
   form.addEventListener('input', (event) => {
