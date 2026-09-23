@@ -13,8 +13,7 @@
     document.querySelector('.cp-heading').hidden = !has('name') && !has('location');
     document.querySelector('.cp-preview-photos').hidden = !has('name');
     document.querySelector('.cp-message').hidden = !has('message');
-    document.querySelector('.cp-meeting').hidden = !has('date');
-    document.querySelector('.cp-introduction').hidden = !has('message') && !has('date');
+    document.querySelector('.cp-introduction').hidden = !has('message');
     document.querySelector('.cp-lead').hidden = !has('lead');
     document.querySelector('#cp-lead-heading').textContent = current?.role || 'Chapter Lead';
   }
