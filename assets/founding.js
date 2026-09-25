@@ -20,7 +20,7 @@
   const preview = testMode;
   let invitation = referralCode ? '' : new URLSearchParams(location.hash.slice(1)).get('invite') || '';
   if (invitation) {
-    history.replaceState(null, '', location.pathname + location.search);
+    // Keep the original private link intact. A copied address must work in another browser.
     try { sessionStorage.setItem(invitationKey, invitation); } catch { /* Link can be reopened. */ }
   } else {
     try { invitation = sessionStorage.getItem(invitationKey) || ''; } catch { /* Storage optional. */ }
@@ -312,6 +312,7 @@
       status: 'upcoming', chapter: chapterName(), school: f.school.value.trim(), city: f.city.value.trim(),
       lead: { name: f.name.value.trim(), privateContact: f.email.value.trim(), bio: bioText(), message: messageText(), projects: f.projects.value.trim() },
       firstGathering: { date: chosen.date, format: chosen.format || null }, recognitionDeadline: deadline, listingConsent: true, submittedAt: new Date().toISOString(), previewSlug: slugify(chapterName()),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
     };
     const button = form.querySelector('button[type="submit"]'); button.disabled = true;
     try {
@@ -425,20 +426,40 @@
     document.querySelector('.declaration p:nth-child(2)').firstChild.textContent = 'Starting a TimeBack chapter in ';
     paint('card');
   }
+  let invitationLookupBusy = false;
   async function loadInvitation() {
+    if (invitationLookupBusy) return;
+    invitationLookupBusy = true;
     $('begin').disabled = true;
-    await fetch(api, { headers: { Authorization: `Bearer ${invitation}` }, cache: 'no-store' })
-      .then(async response => { if (!response.ok) throw new Error(); return response.json(); })
-      .then(receipt => {
-        if (receipt.identity) applyIdentity(receipt.identity, receipt.requiresEmail === true);
-        requiresEmailVerification=receipt.requiresEmailVerification===true;
-        $('referral-verification').hidden=!requiresEmailVerification;
-        if (receipt.claimed) restoreClaim(receipt);
-        else { $('begin').disabled = false; $('welcome').hidden = false; }
-        $('invitation-loading').hidden = true;
-      })
-      .catch(() => { $('invitation-loading').textContent = 'Invitation unavailable. Reopen your link to retry.'; });
+    $('retry-invitation').hidden = true;
+    $('invitation-loading').hidden = false;
+    $('invitation-loading').textContent = 'Checking invitation…';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+      const response = await fetch(api, { headers: { Authorization: `Bearer ${invitation}` }, cache: 'no-store', signal: controller.signal });
+      const receipt = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error('invitation_lookup_failed');
+        error.code = receipt.code === 'invitation_expired' ? 'expired' : response.status === 401 ? 'invalid' : 'temporary';
+        throw error;
+      }
+      if (typeof receipt.claimed !== 'boolean') throw new Error('invitation_lookup_failed');
+      if (receipt.identity) applyIdentity(receipt.identity, receipt.requiresEmail === true);
+      requiresEmailVerification=receipt.requiresEmailVerification===true;
+      $('referral-verification').hidden=!requiresEmailVerification;
+      if (receipt.claimed) restoreClaim(receipt);
+      else { $('begin').disabled = false; $('welcome').hidden = false; }
+      $('invitation-loading').hidden = true;
+    } catch (error) {
+      $('invitation-loading').textContent = error.code === 'expired' ? 'This invitation has expired. Ask TimeBack for a new link.' : error.code === 'invalid' ? 'This invitation is invalid or has been replaced. Ask TimeBack for the original or a new link.' : 'Could not check your invitation. Your link is still here; try again.';
+      $('retry-invitation').hidden = error.code === 'expired' || error.code === 'invalid';
+    } finally {
+      clearTimeout(timeout);
+      invitationLookupBusy = false;
+    }
   }
+  $('retry-invitation').addEventListener('click', loadInvitation);
   if(referralCode){
     if(testMode){const bar=document.createElement('div');bar.className='test-controls';bar.textContent='Test mode · Referral setup';document.querySelector('main').before(bar);}
     (async()=>{
@@ -477,5 +498,5 @@
       await loadInvitation();
     })().catch(() => { $('invitation-loading').textContent = 'Test setup unavailable. Refresh to retry.'; });
   } else if (api && invitation) loadInvitation();
-  else $('invitation-loading').textContent = 'Open your private invitation link to set up a chapter.';
+  else $('invitation-loading').textContent = 'This page needs the original private invitation link. Ask TimeBack to resend it.';
 })();
