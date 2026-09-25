@@ -47,7 +47,15 @@
     }
     emailControls();
   }
-  const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+  const today = () => {
+    if (record?.timeZone) {
+      try {
+        const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:record.timeZone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(part=>[part.type,part.value]));
+        return `${parts.year}-${parts.month}-${parts.day}`;
+      } catch { /* Older records may not have a valid time zone. */ }
+    }
+    const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
   const pretty = value => new Date(value + 'T12:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
   async function request(path = '', payload) {
     const response = await fetch(api + path, {method: payload ? 'POST' : 'GET', cache:'no-store', headers:{Authorization:`Bearer ${token}`, ...(payload ? {'Content-Type':'application/json'} : {})}, ...(payload ? {body:JSON.stringify(payload)} : {})});
@@ -65,23 +73,13 @@
     const destination = new URL(data.chapterUrl,location.href);
     if(destination.origin!==location.origin)throw new Error('Unexpected chapter page address');
     $('public-page').href = destination.href;
-    $('deadline').textContent = `Hold and report the first meeting by ${pretty(c.recognitionDeadline)} for official recognition.`;
+    $('meeting-report-link').href = new URL(`../confirm-meeting/${test?'?test=1':''}#owner=${token}`,location.href).href;
+    $('meeting-report-link').hidden = Boolean(data.report);
     for (const [id, value] of Object.entries({'chapter-name':c.name, school:c.school, city:c.location, message:c.lead.message, 'meeting-date':c.firstGathering.date})) $(id).value = value || '';
     paintContent();
     // Preserve a missed scheduled date while allowing unrelated details to save.
     $('meeting-date').min = c.firstGathering.date < today() ? c.firstGathering.date : today(); $('meeting-date').max = c.recognitionDeadline;
     $('meeting-date').disabled = Boolean(data.report) || c.recognitionDeadline < today();
-    $('report-date').max = today();
-    if (c.createdDate) $('report-date').min = c.createdDate;
-    $('report-date').value = c.firstGathering.date <= today() ? c.firstGathering.date : '';
-    $('report-form').hidden = Boolean(data.report);
-    $('report-result').hidden = !data.report;
-    if (data.report) {
-      $('deadline').hidden = true;
-      $('report-result').textContent = data.report.outcome === 'official'
-        ? `First meeting reported for ${pretty(data.report.date)}. Your chapter is now official.`
-        : `First meeting reported for ${pretty(data.report.date)}. The reporting deadline has passed. Contact TimeBack to review recognition.`;
-    }
   }
   async function submit(event, statusId, work) {
     event.preventDefault();
@@ -249,8 +247,8 @@
     $('profile-email-feedback').textContent = 'Verifying…';
     try {
       const result = await request('/verify-email', {code});
-      // Update only email state: a verification response must not reset draft edits,
-      // selected report files, photo captions, or an in-flight report/upload receipt.
+      // Update only email state: a verification response must not reset draft edits
+      // or an in-flight photo upload receipt.
       for (const field of ['profileEmailVerificationRequired', 'recognitionEmailStatus', 'emailVerified', 'maskedEmail']) record[field] = result[field];
       paintEmail(record);
       if (record.emailVerified !== true) $('profile-email-feedback').textContent = 'Email verification was not confirmed. Check the code and try again.';
@@ -258,30 +256,6 @@
       $('profile-email-feedback').textContent = 'Email verification could not be confirmed. Check the code, try again, or request a new code when available.';
     } finally { emailBusy = false; emailControls(); }
   });
-  const reportUploads=new Map();
-  $('report-form').addEventListener('submit', event => submit(event, 'report-feedback', async()=>{
-    const date=$('report-date').value,confirmed=$('meeting-confirmed').checked,input=$('report-photos'),files=[...input.files];
-    if(files.length>6)throw new Error('Select up to six meeting photos.');
-    input.disabled=true;
-    try{
-      const photoIds=[];
-      for(const file of files){
-        let saved=reportUploads.get(file);
-        if(!saved){saved={key:crypto.randomUUID()};reportUploads.set(file,saved);}
-        if(!saved.id){
-          $('report-feedback').textContent='Uploading meeting photos…';
-          const photo=await preparePhoto(file);
-          const response=await fetch(api+'/photos',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':photo.type,'Idempotency-Key':saved.key},body:photo});
-          const data=await response.json();
-          if(!response.ok||!data.uploadedPhotoId)throw new Error(data.error||'The photo upload could not be confirmed. Please retry.');
-          saved.id=data.uploadedPhotoId;
-        }
-        photoIds.push(saved.id);
-      }
-      const result=await request('/report',{date,confirmed,photoIds});
-      input.value='';reportUploads.clear();return result;
-    }finally{input.disabled=false;}
-  }));
   if (!api) { $('access-status').textContent = 'Chapter management is not live yet.'; return; }
   if (!token) { $('access-status').textContent = 'Open your private owner link to manage your chapter. For access, contact zackaryxu@jointimeback.org.'; return; }
   request().then(paint).catch(error => { $('access-status').textContent = error.message; });

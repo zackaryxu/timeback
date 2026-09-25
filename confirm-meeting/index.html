@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+  <meta name="chapter-api" content="https://msdawliajqdgungoaqvc.supabase.co/functions/v1/timeback-chapters">
+  <title>Confirm your first meeting · TimeBack</title>
+  <link rel="icon" href="../assets/timeback-logo.svg">
+  <link rel="stylesheet" href="../assets/confirm-meeting.css">
+  <script src="../assets/confirm-meeting.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="../"><img src="../assets/timeback-logo.svg" width="27" height="35" alt="">TimeBack</a></header>
+  <main>
+    <p id="preview-notice" class="preview" hidden>Design preview · Nothing will be reported.</p>
+    <p id="status" role="status">Opening your chapter…</p>
+    <div id="workspace" hidden>
+      <h1 class="sr-only">Confirm your first meeting</h1>
+      <p id="statement" class="statement">Confirm that <strong id="chapter-name"></strong> held its first meeting.</p>
+      <p id="promise" class="promise">We’ll recognize your chapter as official<span id="profile-reward"> and add your Chapter Lead profile to the TimeBack team page</span>.</p>
+      <p id="late-note" class="promise" hidden>The confirmation window has ended. You can still report your first meeting for review.</p>
+      <form id="confirm-form">
+        <div class="date-line"><span>Meeting held on <strong id="date-display"></strong></span><button id="change-date" type="button" class="text-button">Change date</button></div>
+        <label id="date-field" hidden>Actual meeting date<input id="meeting-date" type="date" required></label>
+        <button id="confirm-button" class="primary" type="submit">Yes, we held our first meeting <span aria-hidden="true">✓</span></button>
+        <p id="feedback" role="status"></p>
+        <div class="photo-option">
+          <label for="report-photos">If you took photos, <span>add them here</span>.</label>
+          <input id="report-photos" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" multiple>
+          <p id="photo-selection" role="status" hidden></p>
+          <button id="clear-photos" class="text-button" type="button" hidden>Remove selected photos</button>
+        </div>
+      </form>
+      <p id="result" class="result" role="status" hidden></p>
+      <p id="edit-line" class="edit-line">You can also <a id="edit-link" href="#">edit your chapter page or meeting date</a>.</p>
+    </div>
+  </main>
+</body>
+</html>
