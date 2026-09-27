@@ -7,7 +7,8 @@
 
   const local = ['127.0.0.1', 'localhost'].includes(location.hostname);
   const params = new URLSearchParams(location.search);
-  const testMode = params.has('test') || (local && params.has('preview'));
+  const showcase = local && params.has('showcase') ? params.get('showcase') : '';
+  const testMode = params.has('test') || (local && (params.has('preview') || Boolean(showcase)));
   const requestedFlow = params.get('flow') === 'chapter-only' ? 'chapter-only' : 'new-lead';
   document.title = `${testMode ? 'Test · ' : ''}${requestedFlow === 'chapter-only' ? 'Chapter Only' : 'New Chapter Lead'} · TimeBack`;
   let chapterOnly = false;
@@ -29,39 +30,60 @@
     invitation=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');
     try{sessionStorage.setItem(invitationKey,invitation);}catch{}
   }
-  let referralStarted=false,referralVerifiedEmail='',requiresEmailVerification=false;
+  let referralStarted=false,verifiedEmail='',requiresEmailVerification=false;
+  const verificationKey = () => `timeback-verified-email:${invitation}`;
+  const forgetVerification = () => {verifiedEmail='';try{sessionStorage.removeItem(verificationKey());}catch{}};
+  const restoreVerification = () => {
+    try{
+      const proof=JSON.parse(sessionStorage.getItem(verificationKey())||'null');
+      if(proof?.email===f.email.value.trim().toLowerCase()&&Date.now()-proof.at<25*60*1000){
+        verifiedEmail=proof.email;verificationStatus('Email verified.');$('email-send-code').hidden=true;
+      }
+    }catch{/* An unavailable or stale tab session can simply verify again. */}
+  };
   const f = {
     name: $('lead-name'), school: $('school'), city: $('city'), chapter: $('chapter-name'),
     email: $('email'), bio: $('bio'), message: $('message'), projects: $('projects'),
   };
   const chosen = { date: '', format: '' };
-  const referralStatus = text => { $('referral-verification-status').textContent=text; };
-  async function referralRequest(path,body,bearer=invitation){
+  const verificationStatus = text => { $('email-verification-status').textContent=text; };
+  let codeRequestBusy=false,resendTimer=null,lastSentEmail='';
+  async function setupRequest(path,body,bearer=invitation){
     const response=await fetch(api+path,{method:body?'POST':'GET',headers:{Authorization:`Bearer ${bearer}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store'});
     const result=await response.json();
     if(!response.ok)throw new Error(response.status===429?'Please wait before requesting another code. If the limit persists, contact TimeBack.':result.code==='referral_unavailable'?'This referral link is no longer available. Contact TimeBack.':'Could not confirm this request. Check your details and try again.');
     return result;
   }
-  $('referral-send-code').addEventListener('click',async()=>{
+  $('email-send-code').addEventListener('click',async()=>{
     if(!f.email.value.trim()||!f.email.checkValidity()){f.email.reportValidity();return;}
-    const button=$('referral-send-code');button.disabled=true;
+    const button=$('email-send-code'),address=f.email.value.trim();button.disabled=true;codeRequestBusy=true;
     try{
-      const result=await referralRequest('/referral/email-code',{email:f.email.value.trim()});
-      $('referral-code-fields').hidden=false;
-      referralStatus(result.status==='test-only'?`Test code: ${result.testCode}`:result.status==='sent'?'Verification code sent.':'Delivery is not yet confirmed. Check your inbox before requesting another code.');
-      setTimeout(()=>{button.disabled=false;},60000);
-    }catch(e){referralStatus(e.message);button.disabled=false;}
+      const result=showcase ? {status:'test-only',testCode:'123456'} : await setupRequest(referralCode?'/referral/email-code':'/invitation/email-code',{email:address});
+      if(f.email.value.trim().toLowerCase()!==address.toLowerCase()){button.disabled=false;return;}
+      $('email-code-fields').hidden=!['test-only','sent','unknown','sending'].includes(result.status);
+      verificationStatus(result.status==='test-only'?`Test code: ${result.testCode}`:result.status==='sent'?'Verification code sent.':result.status==='unknown'||result.status==='sending'?'Delivery is not yet confirmed. Check your inbox before requesting another code.':'The code could not be sent right now. Try again shortly or contact TimeBack.');
+      lastSentEmail=address.toLowerCase();button.textContent='Resend code';
+      clearTimeout(resendTimer);resendTimer=setTimeout(()=>{button.disabled=false;},60000);
+    }catch(e){verificationStatus(e.message);button.disabled=false;}
+    finally{codeRequestBusy=false;}
   });
-  $('referral-verify-code').addEventListener('click',async()=>{
-    const button=$('referral-verify-code');button.disabled=true;
+  $('email-verify-code').addEventListener('click',async()=>{
+    const button=$('email-verify-code');button.disabled=true;
     try{
       const address=f.email.value.trim();
-      await referralRequest('/referral/verify-email',{email:address,code:$('referral-code').value.trim()});
+      if(showcase){if($('email-code').value.trim()!=='123456')throw new Error('Enter the sample code 123456.');}
+      else await setupRequest(referralCode?'/referral/verify-email':'/invitation/verify-email',{email:address,code:$('email-code').value.trim()});
       if(f.email.value.trim()!==address)throw new Error('Your email changed. Verify the new address.');
-      referralVerifiedEmail=address.toLowerCase();referralStatus('Email verified.');$('referral-code-fields').hidden=true;
-    }catch(e){referralStatus(e.message);}finally{button.disabled=false;}
+      verifiedEmail=address.toLowerCase();verificationStatus('Email verified.');$('email-code-fields').hidden=true;$('email-send-code').hidden=true;
+      if(!showcase)try{sessionStorage.setItem(verificationKey(),JSON.stringify({email:verifiedEmail,at:Date.now()}));}catch{}
+    }catch(e){verificationStatus(e.message);}finally{button.disabled=false;}
   });
-  f.email.addEventListener('input',()=>{referralVerifiedEmail='';if(requiresEmailVerification)referralStatus('Verify this email before continuing.');});
+  f.email.addEventListener('input',()=>{
+    forgetVerification();$('email-code').value='';$('email-code-fields').hidden=true;
+    const button=$('email-send-code');button.hidden=false;button.textContent='Send verification code';
+    if(f.email.value.trim().toLowerCase()!==lastSentEmail){clearTimeout(resendTimer);if(!codeRequestBusy)button.disabled=false;}
+    if(requiresEmailVerification)verificationStatus('Verify this email before continuing.');
+  });
 
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const addDays = (n) => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + n); return d; };
@@ -171,7 +193,7 @@
       setText('rev-bio', bioText()); setText('rev-message', messageText());
     }
     const heading = form.querySelector('.step.on h1'); if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if(!showcase)window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function valid(n) {
     if (n === 1) {
@@ -181,8 +203,8 @@
       }
       $('details-error').hidden = !firstInvalid;
       if (firstInvalid) { $('details-error').textContent = 'Complete the chapter details and enter a valid email address.'; firstInvalid.focus(); }
-      if(!firstInvalid&&requiresEmailVerification&&referralVerifiedEmail!==f.email.value.trim().toLowerCase()){
-        $('details-error').hidden=false;$('details-error').textContent='Verify your email before continuing.';$('referral-send-code').focus();return false;
+      if(!firstInvalid&&requiresEmailVerification&&verifiedEmail!==f.email.value.trim().toLowerCase()){
+        $('details-error').hidden=false;$('details-error').textContent='Verify your email before continuing.';$('email-send-code').focus();return false;
       }
       return !firstInvalid;
     }
@@ -204,7 +226,7 @@
   $('begin').addEventListener('click', async () => {
     if(referralCode&&!referralStarted){
       $('begin').disabled=true;
-      try{await referralRequest('/referral/start',{session:invitation},referralCode);referralStarted=true;}
+      try{await setupRequest('/referral/start',{session:invitation},referralCode);referralStarted=true;}
       catch(e){$('invitation-loading').hidden=false;$('invitation-loading').textContent=e.message;$('begin').disabled=false;return;}
     }
     $('welcome').hidden = true; $('build').hidden = false; show(1);
@@ -303,6 +325,7 @@
   const slugify = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 70);
   form.addEventListener('submit', async (event) => {
     event.preventDefault(); const error = $('form-error'); error.hidden = true;
+    if (showcase) return;
     const current = Number(form.querySelector('.step.on').dataset.step);
     if (current < 3) { if (valid(current)) show(current + 1); return; }
     if (!valid(1)) { show(1); return; }
@@ -326,15 +349,31 @@
       let created = null;
       if (api) {
         const response = await fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${invitation}` }, body: JSON.stringify(payload) });
-        if (!response.ok) throw new Error('setup-save-failed');
+        if (!response.ok) {
+          const detail = await response.json().catch(() => ({}));
+          const failure = new Error('setup-save-failed'); failure.code = detail.code;
+          throw failure;
+        }
         created = await response.json();
         if (typeof created?.chapterUrl !== 'string' || !created.chapterUrl) throw new Error('setup-save-failed');
       }
       if (created?.chapter) restoreClaim(created);
       else finish(payload, created);
     } catch (cause) {
-      button.disabled = false; error.hidden = false;
-      error.textContent = cause?.message === 'setup-not-live' ? 'Open your invitation link to create a chapter. Your details have not been sent.' : 'Creation could not be confirmed. Your details are still here; contact zackaryxu@jointimeback.org before submitting again.';
+      button.disabled = false;
+      if (cause?.code === 'email_verification_required') {
+        forgetVerification(); show(1); $('email-code-fields').hidden = true;$('email-send-code').hidden=false;
+        verificationStatus('Your verification expired. Send a new code to continue.');
+        return;
+      }
+      if (api && invitation && cause?.message !== 'setup-not-live') {
+        try {
+          const check = await fetch(api, {headers:{Authorization:`Bearer ${invitation}`},cache:'no-store',signal:AbortSignal.timeout(8000)});
+          if (check.ok) {const receipt=await check.json();if(receipt.claimed){restoreClaim(receipt);return;}}
+        } catch { /* Keep the same invitation and draft for a later check. */ }
+      }
+      error.hidden = false;
+      error.textContent = cause?.message === 'setup-not-live' ? 'Open your invitation link to create a chapter. Your details have not been sent.' : 'Creation could not be confirmed. Your details are still here; reopen this invitation to check before trying again.';
     }
   });
 
@@ -348,7 +387,7 @@
   }
   document.querySelectorAll('a[aria-disabled="true"]').forEach(link => { link.tabIndex = -1; link.addEventListener('click', event => { if (link.getAttribute('aria-disabled') === 'true') event.preventDefault(); }); });
   function finish(payload, created = null) {
-    try { if (!preview) sessionStorage.removeItem(draftKey); } catch { /* Draft storage is optional. */ }
+    try { if (!preview){sessionStorage.removeItem(draftKey);sessionStorage.removeItem(verificationKey());} } catch { /* Tab storage is optional. */ }
     $('done-sub').textContent = payload.chapter;
     $('next-meeting').textContent = `Scheduled for ${pretty(payload.firstGathering.date)}`;
     $('hold-note').textContent = `Your place in the Fall cohort is reserved through ${pretty(deadline)}. Hold and report your first meeting by then to retain your place.`;
@@ -447,7 +486,8 @@
       if (typeof receipt.claimed !== 'boolean') throw new Error('invitation_lookup_failed');
       if (receipt.identity) applyIdentity(receipt.identity, receipt.requiresEmail === true);
       requiresEmailVerification=receipt.requiresEmailVerification===true;
-      $('referral-verification').hidden=!requiresEmailVerification;
+      $('email-verification').hidden=!requiresEmailVerification;
+      if(requiresEmailVerification)restoreVerification();
       if (receipt.claimed) restoreClaim(receipt);
       else { $('begin').disabled = false; $('welcome').hidden = false; }
       $('invitation-loading').hidden = true;
@@ -460,14 +500,41 @@
     }
   }
   $('retry-invitation').addEventListener('click', loadInvitation);
-  if(referralCode){
+  if(showcase){
+    const allowed=new Set(['cover','details-empty','details-code','details-verified','meeting','review','success','chapter-only-cover','chapter-only-details','referral-code']);
+    const state=allowed.has(showcase)?showcase:'cover';
+    const bar=document.createElement('div');bar.className='test-controls';bar.textContent='Static walkthrough · No email or chapter will be created';document.querySelector('main').before(bar);
+    $('invitation-loading').hidden=true;$('begin').disabled=false;
+    $('welcome').hidden=false;
+    if(state.startsWith('chapter-only'))applyIdentity({name:'Sample Regional Director',role:'Regional Director',bio:'',message:'',projects:''},true);
+    else {requiresEmailVerification=true;$('email-verification').hidden=false;}
+    if(state==='referral-code'){$('referred-by').textContent='Invited by a TimeBack team member';$('referred-by').hidden=false;}
+    if(!['details-empty','cover','chapter-only-cover'].includes(state)){
+      if(!chapterOnly)f.name.value='Sample Chapter Lead';
+      f.city.value='Daly City, California';f.school.value='Sample High School';
+      f.chapter.value='TimeBack at Sample High School';f.email.value='lead@example.org';
+      if(!chapterOnly)f.bio.value='I lead a TimeBack chapter for students in my community.';
+      markDate(iso(addDays(7)));syncDefaults();paint('card');
+    }
+    if(state==='cover'||state==='chapter-only-cover')return;
+    $('welcome').hidden=true;$('build').hidden=false;
+    show(state==='meeting'?2:state==='review'?3:1);
+    if(state==='details-code'||state==='referral-code'){$('email-code-fields').hidden=false;$('email-send-code').textContent='Resend code';$('email-send-code').disabled=true;verificationStatus('Test code: 123456');}
+    if(state==='details-verified'){verifiedEmail=f.email.value.toLowerCase();verificationStatus('Email verified.');$('email-send-code').hidden=true;}
+    if(['details-code','details-verified','referral-code'].includes(state))requestAnimationFrame(()=>$('email-verification').scrollIntoView({block:'center'}));
+    if(state==='success'){
+      finish({chapter:chapterName(),firstGathering:{date:chosen.date}},{chapterUrl:'/founding/chapter-preview.html',ownerLinkEmailStatus:'disabled'});
+      $('test-owner-access').hidden=true;
+      $('email-confirmation').textContent='Static preview. In the real flow, the private chapter owner link is emailed here.';
+    }
+  } else if(referralCode){
     if(testMode){const bar=document.createElement('div');bar.className='test-controls';bar.textContent='Test mode · Referral setup';document.querySelector('main').before(bar);}
     (async()=>{
       if(!/^[A-Za-z0-9_-]{43}$/.test(referralCode))throw new Error('Invalid referral link.');
-      const referrer=await referralRequest('/referral',undefined,referralCode);
+      const referrer=await setupRequest('/referral',undefined,referralCode);
       // Loading is read-only. A unique private setup session starts on Begin.
       $('referred-by').textContent=`Invited by ${referrer.name}`;$('referred-by').hidden=false;
-      requiresEmailVerification=true;$('referral-verification').hidden=false;
+      requiresEmailVerification=true;$('email-verification').hidden=false;restoreVerification();
       // Resume only this referral's stored session, never another invitation.
       const existing=await fetch(api,{headers:{Authorization:`Bearer ${invitation}`},cache:'no-store'});
       if(existing.ok){const receipt=await existing.json();referralStarted=true;if(receipt.claimed){restoreClaim(receipt);$('invitation-loading').hidden=true;return;}}
