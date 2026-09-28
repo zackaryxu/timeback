@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Chapter setup walkthrough · TimeBack</title>
+  <style>
+    :root{font-family:"Avenir Next",Arial,sans-serif;color:#202e57;background:#f7f8fa}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;overflow:hidden}
+    header{padding:14px 22px;border-bottom:1px solid #dfe4ec;background:#fff}
+    h1{font-size:23px;line-height:1.2;margin:0 0 6px}
+    p{margin:0;color:#58657c;line-height:1.5}
+    main{display:grid;grid-template-columns:240px minmax(0,1fr);height:calc(100vh - 86px)}
+    nav{padding:16px 12px;border-right:1px solid #dfe4ec;background:#fff;overflow:auto}
+    nav a{display:block;color:#202e57;text-decoration:none;padding:11px 13px;margin:3px 0;border-radius:9px}
+    nav a[aria-current="page"]{background:#e8edf6;font-weight:700}
+    nav a:hover{background:#f1f4f9}
+    section{min-width:0;padding:10px;display:flex;flex-direction:column}
+    .bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 2px 12px;font-size:14px}
+    .bar a{color:#244b91}
+    iframe{width:100%;flex:1;min-height:0;border:1px solid #dfe4ec;border-radius:10px;background:#fff}
+    @media(max-width:760px){body{overflow:auto}main{display:block;height:auto;min-height:calc(100vh - 86px)}nav{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid #dfe4ec;padding:8px}nav a{white-space:nowrap}section{height:calc(100vh - 86px);min-height:620px;padding:8px}iframe{height:auto;min-height:0}}
+  </style>
+</head>
+<body>
+  <header><h1>Chapter setup walkthrough</h1><p>Static sample states. No invitation is claimed, no chapter is created, and no email is sent.</p></header>
+  <main>
+    <nav aria-label="Setup screens" id="screens"></nav>
+    <section><div class="bar"><span id="state-name"></span><a id="full" target="_blank" rel="noopener">Open full screen ↗</a></div><iframe id="screen" title="Setup screen preview"></iframe></section>
+  </main>
+  <script>
+    const states=[
+      ['cover','Welcome cover'],['details-empty','Blank chapter details'],['details-code','Code entry'],
+      ['details-verified','Verified email'],['meeting','First meeting'],['review','Review chapter'],
+      ['success','Completion and rewards'],['chapter-only-cover','Existing member cover'],
+      ['chapter-only-details','Existing member details'],['referral-code','Referral verification']
+    ];
+    const requested=new URLSearchParams(location.search).get('state');
+    const current=states.some(([id])=>id===requested)?requested:'cover';
+    const url=id=>`./?showcase=${encodeURIComponent(id)}${id.startsWith('chapter-only')?'&flow=chapter-only':''}`;
+    document.getElementById('state-name').textContent=states.find(([id])=>id===current)[1];
+    document.getElementById('screen').src=url(current);
+    document.getElementById('full').href=url(current);
+    for(const [id,label] of states){
+      const link=document.createElement('a');link.href=`?state=${encodeURIComponent(id)}`;link.textContent=label;
+      if(id===current)link.setAttribute('aria-current','page');
+      document.getElementById('screens').append(link);
+    }
+  </script>
+</body>
+</html>

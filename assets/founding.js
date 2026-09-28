@@ -7,8 +7,10 @@
 
   const local = ['127.0.0.1', 'localhost'].includes(location.hostname);
   const params = new URLSearchParams(location.search);
-  const showcase = local && params.has('showcase') ? params.get('showcase') : '';
-  const testMode = params.has('test') || (local && (params.has('preview') || Boolean(showcase)));
+  // The showcase is a deliberately unlisted, read-only walkthrough. It must
+  // work on the live site as well as localhost, but never enter the claim API.
+  const showcase = params.has('showcase') ? params.get('showcase') : '';
+  const testMode = params.has('test') || Boolean(showcase) || (local && params.has('preview'));
   const requestedFlow = params.get('flow') === 'chapter-only' ? 'chapter-only' : 'new-lead';
   document.title = `${testMode ? 'Test · ' : ''}${requestedFlow === 'chapter-only' ? 'Chapter Only' : 'New Chapter Lead'} · TimeBack`;
   let chapterOnly = false;
@@ -523,7 +525,7 @@
     if(state==='details-verified'){verifiedEmail=f.email.value.toLowerCase();verificationStatus('Email verified.');$('email-send-code').hidden=true;}
     if(['details-code','details-verified','referral-code'].includes(state))requestAnimationFrame(()=>$('email-verification').scrollIntoView({block:'center'}));
     if(state==='success'){
-      finish({chapter:chapterName(),firstGathering:{date:chosen.date}},{chapterUrl:'/founding/chapter-preview.html',ownerLinkEmailStatus:'disabled'});
+      finish({chapter:chapterName(),firstGathering:{date:chosen.date}},{chapterUrl:'./chapter-preview.html',ownerLinkEmailStatus:'disabled'});
       $('test-owner-access').hidden=true;
       $('email-confirmation').textContent='Static preview. In the real flow, the private chapter owner link is emailed here.';
     }
