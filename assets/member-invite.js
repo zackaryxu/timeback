@@ -19,9 +19,11 @@
  }
  function render(){
   const verified=verifiedEmail===email()&&!!verifiedEmail,wait=Math.max(0,Math.ceil((retryAt-Date.now())/1000));
+  const readyToClaim=!emailRequired||claimed||verified;
   $('member-email').disabled=busy||!emailRequired||claimed;
   $('member-email').readOnly=codeRequested||verified;
   $('send-code').hidden=verified||claimed;
+  $('send-code').className=codeRequested?'quiet':'primary';
   $('send-code').disabled=busy||wait>0;
   $('send-code').textContent=wait?`Resend available in ${wait}s`:codeRequested?'Resend code':'Send verification code';
   $('code-section').hidden=!codeRequested||verified||claimed;
@@ -29,7 +31,9 @@
   $('verify-code').disabled=busy;
   $('change-email').hidden=claimed||(!codeRequested&&!verified);
   $('change-email').disabled=busy;
-  $('claim-submit').disabled=busy||(emailRequired&&!claimed&&!verified);
+  $('listing-consent-row').hidden=!readyToClaim;
+  $('claim-submit').hidden=!readyToClaim;
+  $('claim-submit').disabled=busy||!readyToClaim;
   $('retry-publication').disabled=busy;
   $('member-name').disabled=busy;$('listing-consent').disabled=busy;
  }
@@ -52,6 +56,7 @@
  $('send-code').onclick=async()=>{
   if(busy||claimed||!emailRequired||Date.now()<retryAt)return;
   if(!$('member-email').reportValidity()||!email())return;
+  let focusCode=false;
   busy=true;render();
   try{
    // Persist the same editing key before any request can bind it on the server.
@@ -59,13 +64,14 @@
    $('email-status').textContent='Requesting verification code…';
    const result=await request('POST',{email:email(),editorToken},'/email-code');
    cooldown(result.retryAfter);saveDraft();
-   const messages={sent:'A verification code was sent. Enter the 6-digit code below.',pending:'Your verification email is queued. Enter the code when it arrives.',unknown:'Sending could not be confirmed. Check your inbox before requesting another code.',failed:'The code could not be sent. Check your email address, then try again when resend is available.','test-only':'Test mode: no email was sent.'};
+   const messages={sent:'Verification code sent. Enter it below and select Verify email to continue.',pending:'Your verification email is queued. When it arrives, enter the code and select Verify email.',unknown:'Sending could not be confirmed. Check your inbox before requesting another code.',failed:'The code could not be sent. Check your email address, then try again when resend is available.','test-only':'Test mode: no email was sent. Enter the test code and select Verify email.'};
    $('email-status').textContent=messages[result.status]||'Sending could not be confirmed. Check your inbox before requesting another code.';
    if(test&&result.status==='test-only'&&/^\d{6}$/.test(result.testCode||''))$('email-status').textContent+=` Test code: ${result.testCode}.`;
+   focusCode=['sent','pending','unknown','test-only'].includes(result.status);
   }catch(error){
    if(error.retryAfter){cooldown(error.retryAfter);persistDraft();}
    $('email-status').textContent=errorMessage(error)+' Check your inbox before requesting another code.';
-  }finally{busy=false;render();}
+  }finally{busy=false;render();if(focusCode)$('email-code').focus();}
  };
  $('verify-code').onclick=async()=>{
   if(busy||!codeRequested||claimed)return;
@@ -99,7 +105,7 @@
    $('member-name').value=data.name||saved?.name||'';$('member-name').readOnly=!!data.name||claimed;
    $('listing-consent').checked=!!saved?.consent;
    $('member-email').value=saved?.email||'';$('member-email').required=emailRequired&&!claimed;
-   if(emailRequired&&!claimed&&codeRequested)$('email-status').textContent='Enter the code from your email, or request another when resend is available.';
+   if(emailRequired&&!claimed&&codeRequested)$('email-status').textContent='Enter the code from your email and select Verify email to continue. You can request another code when resend is available.';
    $('email-section').hidden=!emailRequired;render();
    $('claim-submit').textContent=data.claimed?'Continue setup':'Create profile';
    $('claim-form').hidden=false;status(test?'Test invitation. No public page will be published.':'');
