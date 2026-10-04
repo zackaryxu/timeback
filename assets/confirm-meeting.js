@@ -61,7 +61,8 @@
     $('profile-reward').hidden=chapter.flow!=='new-lead';
     $('edit-link').href=preview?'#':ownerUrl();
     $('meeting-date').min=chapter.createdDate;$('meeting-date').max=current;
-    const initial=chapter.firstGathering.date<=current?chapter.firstGathering.date:current;
+    const planned=chapter.firstGathering.date;
+    const initial=planned && planned<=current?planned:current;
     $('meeting-date').value=initial;$('date-display').textContent=pretty(initial);
     $('confirm-form').hidden=!!data.report;
     $('result').hidden=!data.report;

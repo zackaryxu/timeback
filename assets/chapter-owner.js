@@ -78,7 +78,8 @@
     for (const [id, value] of Object.entries({'chapter-name':c.name, school:c.school, city:c.location, message:c.lead.message, 'meeting-date':c.firstGathering.date})) $(id).value = value || '';
     paintContent();
     // Preserve a missed scheduled date while allowing unrelated details to save.
-    $('meeting-date').min = c.firstGathering.date < today() ? c.firstGathering.date : today(); $('meeting-date').max = c.recognitionDeadline;
+    $('meeting-date').min = c.firstGathering.date && c.firstGathering.date < today() ? c.firstGathering.date : today(); $('meeting-date').max = c.recognitionDeadline;
+    $('meeting-date').required = Boolean(c.firstGathering.date);
     $('meeting-date').disabled = Boolean(data.report) || c.recognitionDeadline < today();
   }
   async function submit(event, statusId, work) {
@@ -208,7 +209,7 @@
   for(const kind of ['team','activity'])$('cancel-'+kind).addEventListener('click',()=>{$(kind+'-form').reset();$(kind+'-id').value='';$(kind+'-editor').open=false;});
   $('details-form').addEventListener('submit', event => submit(event, 'save-feedback', () => {
     const payload = {name:$('chapter-name').value, school:$('school').value, location:$('city').value, message:$('message').value};
-    if (!$('meeting-date').disabled) payload.meetingDate = $('meeting-date').value;
+    if (!$('meeting-date').disabled && $('meeting-date').value) payload.meetingDate = $('meeting-date').value;
     return request('', payload);
   }));
   $('profile-email-send').addEventListener('click', async () => {
