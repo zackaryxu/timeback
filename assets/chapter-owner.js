@@ -24,7 +24,7 @@
   function paintEmail(data) {
     const verified = data.emailVerified === true;
     const required = data.profileEmailVerificationRequired === true;
-    $('profile-email-section').hidden = !required || verified;
+    $('profile-email-section').hidden = !required || verified || data.recognitionEmailStatus === 'held';
     $('profile-email-address').textContent = data.maskedEmail ? `Saved email: ${data.maskedEmail}` : '';
     $('profile-email-address').hidden = !data.maskedEmail;
     const messages = {
@@ -35,9 +35,9 @@
       unknown: 'Email verification saved. Profile access email delivery could not be confirmed.',
       failed: 'Email verification saved. Profile access email could not be sent. Contact TimeBack for help.'
     };
-    const showStatus = verified && (required || (data.recognitionEmailStatus && data.recognitionEmailStatus !== 'not-enabled'));
+    const showStatus = data.recognitionEmailStatus === 'held' || verified && (required || (data.recognitionEmailStatus && data.recognitionEmailStatus !== 'not-enabled'));
     $('profile-email-status').hidden = !showStatus;
-    $('profile-email-status').textContent = showStatus ? messages[data.recognitionEmailStatus] || 'Email verification saved. Your profile-editing link will be sent after your chapter becomes official and its page is published.' : '';
+    $('profile-email-status').textContent = data.recognitionEmailStatus === 'held' ? 'TimeBack is coordinating your setup. Automated emails have not been released.' : showStatus ? messages[data.recognitionEmailStatus] || 'Email verification saved. Your profile-editing link will be sent after your chapter becomes official and its page is published.' : '';
     if (!needsEmailVerification()) {
       clearInterval(emailTimer);
       $('profile-email-code').value = '';
@@ -107,7 +107,8 @@
   function paintContent() {
     imageUrls.forEach(URL.revokeObjectURL); imageUrls=[];
     const c=record.chapter;
-    $('assigned-lead').textContent=`${c.lead.name} · Assigned Chapter Lead. Additional listings do not grant owner access.`;
+    const leaders=[c.lead,...(c.coLeads||[])];
+    $('assigned-lead').textContent=`${leaders.map(l=>l.name).join(' and ')} · Assigned Chapter ${leaders.length>1?'Co-leads':'Lead'}. Additional team listings do not grant owner access.`;
     $('photo-list').replaceChildren(); $('team-list').replaceChildren(); $('activity-list').replaceChildren();
     const oldPhoto=$('team-photo').value;
     $('team-photo').replaceChildren(new Option('No photo',''));
