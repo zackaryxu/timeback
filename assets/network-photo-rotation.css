@@ -1,0 +1,13 @@
+.network-photo-rotator { position: relative; isolation: isolate; }
+.network-photo-rotator [data-chapter-slide] { opacity: 0; transition: opacity 650ms ease; }
+.network-photo-rotator [data-chapter-slide]:not(:first-child) { position: absolute; inset: 0; }
+.network-photo-rotator [data-chapter-slide].is-active { opacity: 1; }
+.network-photo figcaption.network-photo-caption-row { display: flex; gap: 12px; align-items: start; justify-content: space-between; min-height: 2.5em; }
+.network-photo-caption { max-width: 34ch; }
+.network-photo-controls { display: inline-flex; gap: 2px; flex: 0 0 auto; }
+.network-photo-controls[hidden] { display: none; }
+.network-photo-controls button { display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: #47556b; font-size: 14px; line-height: 1; font-family: inherit; cursor: pointer; }
+.network-photo-controls button:hover { background: #202e570c; color: #202e57; }
+.network-photo-controls button:focus-visible { outline: 2px solid #285a8b; outline-offset: 2px; }
+.network-photo-controls svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+@media (prefers-reduced-motion: reduce) { .network-photo-rotator [data-chapter-slide] { transition: none; } }
