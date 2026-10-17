@@ -1,0 +1,8 @@
+.organization-about{max-width:780px;margin-inline:auto;padding-block:72px 96px}
+.organization-about h1{font-size:clamp(36px,4vw,48px);line-height:1.2;margin-bottom:32px}
+.organization-about .organization-lead{font-size:24px;line-height:1.65;color:var(--ink);margin-bottom:42px}
+.organization-about p{font-size:20px;line-height:1.85}
+.organization-about p+p{margin-top:30px}
+.organization-about a{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.organization-about a:hover{text-decoration-thickness:2px}
+@media(max-width:760px){.organization-about{width:calc(100% - 44px);padding-block:44px 64px}.organization-about h1{font-size:36px;margin-bottom:25px}.organization-about .organization-lead{font-size:21px;line-height:1.7;margin-bottom:34px}.organization-about p{font-size:18px;line-height:1.85}.organization-about p+p{margin-top:27px}}
