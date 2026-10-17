@@ -596,3 +596,5 @@ body:has(.contact-panel[open]){overflow:hidden}
  .member-profile-card .profile-bio{margin-top:22px}
  .member-profile-card>section{margin-top:23px;padding-top:22px}
 }
+/* Individual chapter profiles: omit empty portraits; keep directory initials. */
+main > article.page-content.wrap > .person-monogram{display:none}
