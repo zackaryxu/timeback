@@ -1,62 +1,48 @@
-/* Optional tools, scoped to the Our Approach resource section. */
+/* A compact, unboxed resource list on Our Approach. */
 .page-approach .page-content > .timeback-tools {
-  padding: 44px 0 52px;
-  border-top: 2px solid var(--ink);
-  border-bottom: 0;
+  padding: 26px 0 32px;
+  border: 0;
   scroll-margin-top: 110px;
 }
-.timeback-tools-intro {
-  display: grid;
-  grid-template-columns: .85fr 1.65fr;
-  gap: 72px;
-  align-items: start;
+.page-approach .timeback-tools h2 {
+  font-size: 1.25rem;
+  line-height: 1.4;
 }
-.timeback-tools-intro > p {
-  max-width: 640px;
-  font-size: 1.125rem;
-  line-height: 1.7;
+.timeback-resource-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
 }
-.timeback-tool {
+.timeback-resource {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 40px;
-  margin-top: 30px;
-  padding: 30px 34px;
-  background: #edf1f7;
-  border-left: 4px solid var(--ink);
+  gap: 12px 32px;
 }
-.timeback-tool-meta {
-  margin: 0 0 10px;
-  font-size: .875rem;
-  font-weight: 600;
-  letter-spacing: .025em;
-}
-.timeback-tool h3 {
-  margin: 0 0 12px;
-  font-size: 1.75rem;
-  line-height: 1.2;
-}
-.timeback-tool h3 + p {
-  max-width: 650px;
+.page-approach .timeback-resource h3 {
+  margin: 0;
   font-size: 1.0625rem;
+  line-height: 1.5;
+}
+.timeback-resource p {
+  margin-top: 4px;
+  font-size: 1rem;
   line-height: 1.7;
 }
-.timeback-tool-download {
-  flex-shrink: 0;
-  font-weight: 600;
+.timeback-resource .timeback-resource-meta {
+  color: var(--muted);
+  font-size: .875rem;
 }
-.timeback-tool a:focus-visible {
+.timeback-resource-download {
+  flex-shrink: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.timeback-resource a:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 5px;
 }
-@media (max-width: 1000px) {
-  .timeback-tools-intro { grid-template-columns: .9fr 1.6fr; gap: 42px; }
-  .timeback-tool { align-items: flex-start; flex-direction: column; gap: 22px; }
-}
 @media (max-width: 760px) {
-  .page-approach .page-content > .timeback-tools { padding: 30px 0 36px; }
-  .timeback-tools-intro { grid-template-columns: 1fr; gap: 14px; }
-  .timeback-tools-intro > p { font-size: 1.0625rem; }
-  .timeback-tool { margin-top: 24px; padding: 24px 22px; }
+  .page-approach .page-content > .timeback-tools { padding: 20px 0 26px; }
+  .timeback-resource { align-items: flex-start; flex-direction: column; gap: 8px; }
 }
