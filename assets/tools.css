@@ -1,0 +1,62 @@
+/* Optional tools, scoped to the Our Approach resource section. */
+.page-approach .page-content > .timeback-tools {
+  padding: 44px 0 52px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 0;
+  scroll-margin-top: 110px;
+}
+.timeback-tools-intro {
+  display: grid;
+  grid-template-columns: .85fr 1.65fr;
+  gap: 72px;
+  align-items: start;
+}
+.timeback-tools-intro > p {
+  max-width: 640px;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+.timeback-tool {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  margin-top: 30px;
+  padding: 30px 34px;
+  background: #edf1f7;
+  border-left: 4px solid var(--ink);
+}
+.timeback-tool-meta {
+  margin: 0 0 10px;
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: .025em;
+}
+.timeback-tool h3 {
+  margin: 0 0 12px;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+.timeback-tool h3 + p {
+  max-width: 650px;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+.timeback-tool-download {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+.timeback-tool a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+@media (max-width: 1000px) {
+  .timeback-tools-intro { grid-template-columns: .9fr 1.6fr; gap: 42px; }
+  .timeback-tool { align-items: flex-start; flex-direction: column; gap: 22px; }
+}
+@media (max-width: 760px) {
+  .page-approach .page-content > .timeback-tools { padding: 30px 0 36px; }
+  .timeback-tools-intro { grid-template-columns: 1fr; gap: 14px; }
+  .timeback-tools-intro > p { font-size: 1.0625rem; }
+  .timeback-tool { margin-top: 24px; padding: 24px 22px; }
+}
