@@ -69,7 +69,8 @@
     const c = data.chapter;
     $('workspace').hidden = false; $('access-status').hidden = true; $('test-notice').hidden = !test;
     $('chapter-title').textContent = c.name;
-    $('chapter-status').textContent = c.status === 'official' ? 'Official chapter' : c.recognitionDeadline < today() ? 'Upcoming status expired' : 'Upcoming chapter';
+    const expired=c.recognitionDeadline!=null && c.recognitionDeadline < today();
+    $('chapter-status').textContent = c.status === 'official' ? 'Official chapter' : expired ? 'Upcoming status expired' : 'Upcoming chapter';
     const destination = new URL(data.chapterUrl,location.href);
     if(destination.origin!==location.origin)throw new Error('Unexpected chapter page address');
     $('public-page').href = destination.href;
@@ -78,9 +79,9 @@
     for (const [id, value] of Object.entries({'chapter-name':c.name, school:c.school, city:c.location, message:c.lead.message, 'meeting-date':c.firstGathering.date})) $(id).value = value || '';
     paintContent();
     // Preserve a missed scheduled date while allowing unrelated details to save.
-    $('meeting-date').min = c.firstGathering.date && c.firstGathering.date < today() ? c.firstGathering.date : today(); $('meeting-date').max = c.recognitionDeadline;
+    $('meeting-date').min = c.firstGathering.date && c.firstGathering.date < today() ? c.firstGathering.date : today(); $('meeting-date').max = c.recognitionDeadline || '';
     $('meeting-date').required = Boolean(c.firstGathering.date);
-    $('meeting-date').disabled = Boolean(data.report) || c.recognitionDeadline < today();
+    $('meeting-date').disabled = Boolean(data.report) || expired;
   }
   async function submit(event, statusId, work) {
     event.preventDefault();

@@ -56,7 +56,7 @@
         : 'Your chapter is official. Your chapter page and team profile may take a little time to update.';
   }
   function paint(data){
-    receipt=data;const chapter=data.chapter,current=today(data.timeZone),expired=chapter.recognitionDeadline<current;
+    receipt=data;const chapter=data.chapter,current=today(data.timeZone),expired=chapter.recognitionDeadline!=null&&chapter.recognitionDeadline<current;
     $('workspace').hidden=false;$('status').hidden=true;$('chapter-name').textContent=chapter.name;
     $('profile-reward').hidden=chapter.flow!=='new-lead';
     $('edit-link').href=preview?'#':ownerUrl();
