@@ -20,7 +20,17 @@
     function photo(pid,caption){const f=el('figure'),img=el('img');img.src=`${api}/test/media/${pid}`;img.alt=caption||'';img.loading='lazy';f.append(img);if(caption)f.append(el('figcaption',caption));return f;}
     if(c.team?.length){const s=section('Chapter team'),grid=el('div');grid.className='cp-team-grid';for(const p of c.team){const card=el('article');if(p.photo)card.append(photo(p.photo,p.name));card.append(el('h3',p.name),el('p',p.role));if(p.bio)card.append(el('p',p.bio));grid.append(card);}s.append(grid);}
     if(c.activities?.length){const s=section('Activities','Updates from the chapter.');for(const a of [...c.activities].sort((a,b)=>b.date.localeCompare(a.date))){const card=el('article');card.className='cp-activity';card.append(el('time',a.date),el('h3',a.title),el('p',a.description));const grid=el('div');grid.className='cp-gallery';for(const p of a.photos||[])grid.append(photo(p,a.title));card.append(grid);s.append(card);}}
-    const photos=(c.photos||[]).filter(p=>p.gallery);if(photos.length){const s=section('Photos'),grid=el('div');grid.className='cp-gallery';for(const p of photos)grid.append(photo(p.id,p.caption));s.append(grid);}
+    const photos=(c.photos||[]).filter(p=>p.gallery);if(photos.length){const s=section('Photos'),grid=el('div');grid.className='cp-gallery';for(const p of photos)grid.append(photo(p.id,p.caption));
+      if(c.galleryEndCard===true){
+        let value=0;for(const letter of c.id)value=(Math.imul(value,31)+letter.charCodeAt(0))>>>0;
+        const card=el('figure');card.className=`cp-end-card cp-end-card--${['serif','sans','mono'][value%3]}`;card.setAttribute('role','img');card.setAttribute('aria-label','More to come. Future chapter updates.');
+        const art=el('div');art.className='cp-end-card-art';
+        const label=el('span','TIMEBACK CHAPTERS');label.className='cp-end-card-label';
+        const title=el('span','More\nto come.');title.className='cp-end-card-title';
+        const rule=el('span');rule.className='cp-end-card-rule';rule.setAttribute('aria-hidden','true');
+        art.append(label,title,rule);card.append(art);grid.append(card);
+      }
+      s.append(grid);}
     else if(c.status==='official'){const note=el('p',`First meeting held ${c.firstGathering.date}`);note.className='cp-meeting-note';wrapper.append(note);}
   }catch{status.textContent='This test chapter is unavailable.';}
 })();

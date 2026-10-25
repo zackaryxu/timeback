@@ -129,6 +129,17 @@
       card.addEventListener('submit',async e=>{e.preventDefault();save.disabled=true;await content({kind:'photos',action:'save',id:p.id,caption:input.value,gallery:box.checked,permission:consent.checked},'photo-feedback');save.disabled=false;});
       $('photo-list').append(card);
     });
+    // This is a removable presentation card, never an uploaded/activity photo.
+    const endCard=node('article',null,'photo-card');
+    endCard.append(node('h3','More to come'),node('p','An optional end-card after your gallery photos. It always stays last and does not count as a photo.','section-note'));
+    endCard.append(action(c.galleryEndCard===true?'Remove “More to come” card':'Add “More to come” card',async()=>{
+      try {
+        const enabled=c.galleryEndCard!==true;
+        paint(await request('',{galleryEndCard:enabled}));
+        $('photo-feedback').textContent=record.publication?.status==='pending'?'Saved. Website publication is pending.':enabled?'End-card added. It will appear last when your gallery has photos.':'End-card removed.';
+      } catch(error) {$('photo-feedback').textContent=error.message;}
+    }));
+    $('photo-list').append(endCard);
     $('team-photo').value=oldPhoto;
     if (!(c.photos||[]).length) $('activity-photos').append(node('p','Upload photos in Chapter photos to attach them here.','section-note'));
     (c.team||[]).forEach(p=>{
