@@ -4,12 +4,17 @@
   "role": "Chapter Lead",
   "intro": "Chapter Lead · TimeBack at Urban Assembly Maker Academy",
   "bio": "Student in NYC who was once the kid with all B’s. Learning time management allowed me to revise and looks back at my work. Giving me the opportunity to improve my skills. Since then I now have a 95.6 GPA thanks to learning the importance of time management.",
-  "links": [],
+  "links": [
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/labeat-ardolic-1b38b0437?utm_source=share_via&utm_content=profile&utm_medium=member_ios"
+    }
+  ],
   "photo": null,
   "portraitUrl": null,
   "teamScopes": [
     "chapter"
   ],
-  "updatedAt": "2026-10-29T02:32:42.932Z",
+  "updatedAt": "2026-10-29T02:35:53.352Z",
   "bioUpdatedAt": "2026-10-29T02:32:42.932Z"
 }
