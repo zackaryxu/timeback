@@ -3,7 +3,7 @@
 <meta name="description" content="An invitation to lead a TimeBack chapter in the Limited Fall 2026 Cohort.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="TimeBack"><meta property="og:title" content="Limited Fall 2026 Cohort · TimeBack"><meta property="og:description" content="An invitation to lead a TimeBack chapter."><meta property="og:image" content="https://jointimeback.org/assets/social/home-brand.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:type" content="image/png"><meta property="og:image:alt" content="TimeBack, a youth-led organization for time-management education.">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Limited Fall 2026 Cohort · TimeBack"><meta name="twitter:description" content="An invitation to lead a TimeBack chapter."><meta name="twitter:image" content="https://jointimeback.org/assets/social/home-brand.png">
-<link rel="preconnect" href="https://msdawliajqdgungoaqvc.supabase.co" crossorigin><link rel="icon" href="../assets/timeback-logo.svg"><link rel="stylesheet" href="../assets/founding.css?v=cohort-creation-v6"><script src="../assets/founding.js?v=showcase-live-v1" defer></script></head>
+<link rel="preconnect" href="https://msdawliajqdgungoaqvc.supabase.co" crossorigin><link rel="icon" href="../assets/timeback-logo.svg"><link rel="stylesheet" href="../assets/founding.css?v=cohort-creation-v6"><script src="../assets/founding.js?v=next-steps-v2" defer></script></head>
 <body>
 <header class="founding-header">
   <a class="brand" href="../"><img src="../assets/timeback-logo.svg" width="38" height="46" alt="">TimeBack <span>Limited Fall 2026 Cohort</span></a>
@@ -32,7 +32,7 @@
       <form id="chapter-form" novalidate>
         <ol class="steps" aria-label="Setup progress">
           <li data-step="1" class="on"><span>1</span>Chapter</li>
-          <li data-step="2"><span>2</span>Meeting</li>
+          <li data-step="2"><span>2</span>Next step</li>
           <li data-step="3"><span>3</span>Review</li>
         </ol>
 
@@ -71,19 +71,20 @@
             <label class="field"><span>Chapter message</span><textarea id="message" rows="3" maxlength="400"></textarea></label>
             <details class="chapter-name-edit"><summary>Add other projects or organizations</summary><label class="field"><span>Other projects or organizations</span><input id="projects" maxlength="300" placeholder="Optional"></label></details>
           </div>
-          <p class="fine">Shown on the chapter page. The profile joins the TimeBack team page after the first meeting.</p>
+          <p class="fine">Shown on the chapter page. Your profile joins the TimeBack team page after your first activity or founder-approved training.</p>
           </section>
           <p class="error" id="details-error" role="alert" hidden></p>
-          <div class="actions"><button type="button" class="primary" data-next="2">Continue to first meeting <span aria-hidden="true">→</span></button></div>
+          <div class="actions"><button type="button" class="primary" data-next="2">Continue <span aria-hidden="true">→</span></button></div>
         </fieldset>
 
         <fieldset class="step" data-step="2" hidden>
-          <h1>First meeting</h1>
-          <p class="step-note" id="meeting-policy"></p>
+          <h1>Choose a meeting date</h1>
+          <p class="step-note">Select the day you plan to hold your first TimeBack meeting. This step only records your planned date; you’ll hold the meeting separately.</p>
+          <p class="note"><strong>Not ready to hold a meeting yet?</strong><br><a href="https://calendly.com/zackaryxu/timeback-chapter-training-questions" target="_blank" rel="noopener noreferrer">Book a 10–15-minute training call with Zackary</a>, TimeBack’s founder, instead. We can finish setup together—no meeting date needed. Completed training with Zackary’s approval qualifies your chapter for Official recognition.</p>
 
-          <div class="pick" id="dates" role="group" aria-label="Choose a first gathering date"></div>
+          <div class="pick" id="dates" role="group" aria-label="Choose the date you plan to hold your first meeting"></div>
           <button type="button" class="linkish" id="other-day">Choose another date</button>
-          <label class="field date-field" id="other-day-field" hidden><span>First gathering date</span><input id="date" type="date"></label>
+          <label class="field date-field" id="other-day-field" hidden><span>Planned first-meeting date</span><input id="date" type="date"></label>
 
           <div class="format-row" role="group" aria-label="Optional gathering format">
             <span>Format <em>Optional</em></span>
@@ -94,6 +95,7 @@
           </div>
 
           <p class="fine">The meeting date appears on the chapter page.</p>
+          <p class="fine" id="meeting-policy"></p>
           <p class="error" id="date-error" role="alert" hidden></p>
           <div class="actions"><button type="button" class="quiet" data-back="1">Back</button><button type="button" class="primary" data-next="3">Review chapter <span aria-hidden="true">→</span></button></div>
         </fieldset>
@@ -107,7 +109,7 @@
             <div><dt>Chapter Lead</dt><dd id="rev-lead"></dd></div>
             <div><dt>Bio</dt><dd id="rev-bio"></dd></div>
             <div><dt>Chapter message</dt><dd id="rev-message"></dd></div>
-            <div><dt>First gathering</dt><dd id="rev-when"></dd></div>
+            <div><dt>Planned first meeting</dt><dd id="rev-when"></dd></div>
           </dl>
           <button type="button" class="linkish" data-back="1">Edit chapter details and bio</button>
           <label class="check"><input type="checkbox" id="listing-consent"><span>I authorize TimeBack to publish this upcoming chapter record and its Chapter Lead feature.</span></label>
@@ -132,7 +134,7 @@
     </header>
     <ol class="completion-path" aria-label="Chapter journey">
       <li class="path-complete"><span class="path-marker" aria-hidden="true">✓</span><div><h2>Chapter setup complete</h2></div></li>
-      <li class="path-next"><span class="path-marker" aria-hidden="true">2</span><div><h2>Hold and report your first meeting</h2><p id="next-meeting"></p></div></li>
+      <li class="path-next"><span class="path-marker" aria-hidden="true">2</span><div><h2>Complete your first activity</h2><p id="next-meeting"></p><p>Hold and report your meeting, or <a href="https://calendly.com/zackaryxu/timeback-chapter-training-questions" target="_blank" rel="noopener noreferrer">book a 10–15-minute training call with Zackary</a> as an alternative. Official recognition follows a reported meeting or completed, founder-approved training.</p></div></li>
       <li class="path-rewards"><span class="path-marker" aria-hidden="true"></span><div class="recognition-rewards">
         <div><svg class="reward-symbol" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M16 3 26 7v9c0 6-10 13-10 13S6 22 6 16V7Z"/><path d="m11 15 4 4 7-8"/></svg><h3>Official chapter recognition</h3></div>
         <div><svg class="reward-symbol" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="3"/><circle cx="12" cy="13" r="3"/><path d="M7 23v-2a5 5 0 0 1 10 0v2M21 12h4m-4 5h4"/></svg><h3>Your profile on the TimeBack team page</h3></div>

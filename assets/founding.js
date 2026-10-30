@@ -1,5 +1,5 @@
 // A scheduled gathering creates an Upcoming chapter, never an Official chapter.
-// Official recognition is a later, explicit transition after the gathering happened.
+// Official recognition follows a reported activity or completed founder-approved training.
 (() => {
   const $ = (id) => document.getElementById(id);
   const form = $('chapter-form');
@@ -93,7 +93,7 @@
   const pretty = (value) => value ? dateFromIso(value).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '';
   const shortPretty = (value) => value ? dateFromIso(value).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : '';
   let deadline = iso(addDays(14));
-  const policyText = `* Hold and report the first meeting by ${pretty(deadline)} to become official. Upcoming status expires after this two-week deadline. Photos encouraged, not required.`;
+  const policyText = `To become Official, hold and report your first meeting or complete founder-approved training by ${pretty(deadline)}. Upcoming status expires after this two-week deadline. Photos are optional.`;
   $('meeting-policy').textContent = policyText;
   $('review-policy').textContent = policyText;
 
@@ -392,7 +392,7 @@
     try { if (!preview){sessionStorage.removeItem(draftKey);sessionStorage.removeItem(verificationKey());} } catch { /* Tab storage is optional. */ }
     $('done-sub').textContent = payload.chapter;
     $('next-meeting').textContent = `Scheduled for ${pretty(payload.firstGathering.date)}`;
-    $('hold-note').textContent = `Your place in the Fall cohort is reserved through ${pretty(deadline)}. Hold and report your first meeting by then to retain your place.`;
+    $('hold-note').textContent = `Your place in the Fall cohort is reserved through ${pretty(deadline)}. Hold and report your first meeting or complete founder-approved training by then to retain your place.`;
     if (created?.chapter?.status === 'official') {
       $('next-meeting').textContent = `First meeting reported for ${pretty(payload.firstGathering.date)}`;
       $('hold-note').textContent = 'Your first meeting has been reported. Your chapter is official.';
