@@ -665,9 +665,8 @@ main > article.page-content.wrap > .person-monogram{display:none}
 }
 /* End chapter profile cards. */
 
-/* Team initials circles: compact identities for members without portraits. */
-.page-about .team-directory .team-profile>.person-monogram{width:112px;height:112px;max-width:112px;aspect-ratio:1;border-radius:50%;margin:0 auto;background:#e8edf4;color:#354f78;font-size:32px;letter-spacing:.02em;font-weight:600}
+/* Team initials circles: match the visual weight of adjacent portraits. */
+.page-about .team-directory .team-profile>.person-monogram{width:85%;height:auto;max-width:none;aspect-ratio:1;border-radius:50%;margin:0 auto;background:#e8edf4;color:#354f78;font-size:clamp(34px,4vw,52px);letter-spacing:.02em;font-weight:600}
 .page-about .team-directory .team-group .team-card:has(.person-monogram){align-self:center;padding-block:12px}
 .page-about .team-directory .team-card:has(.person-monogram) .team-card-identity{margin-top:15px}
-@media(max-width:480px){.page-about .team-directory .team-profile>.person-monogram{width:88px;height:88px;font-size:26px}}
 /* End team initials circles. */
