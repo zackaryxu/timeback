@@ -2,3 +2,8 @@
 #contribution-section{max-width:650px;margin:40px 0;padding-top:30px;border-top:1px solid var(--line)}#contribution-section>p{font-size:14px;color:var(--muted);margin-top:10px}#contribution-form{display:grid;gap:10px;margin-top:24px}#contribution-form label{font-size:14px;margin-top:12px}#contribution-form textarea,#contribution-form input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}#contribution-form button{justify-self:start;margin-top:12px}#contribution-history{padding-left:20px;font-size:14px}
 #claim-form .listing-consent{display:flex;align-items:flex-start;gap:10px;font-weight:400;margin:20px 0;text-align:left}#claim-form #listing-consent{width:17px;height:17px;flex:0 0 17px;margin:3px 0 0;padding:0}#claim-complete{margin-top:26px}#claim-complete p{font-size:15px;margin:14px 0}#open-editor{display:block;text-decoration:none;margin-top:24px}#copy-editor{margin-top:12px}
 #send-code:not([hidden]) + #change-email:not([hidden]){margin-left:16px}
+
+/* Keep photo preparation, errors and the save action beside the upload. */
+.photo-status{font-size:14px;line-height:1.6;margin:14px 0;overflow-wrap:anywhere}.photo-status.error,#save-feedback.error{color:#803a2b}.photo-status.error{background:#f9eeea;border-radius:8px;padding:12px}#save-photo{margin-top:4px}#save-feedback{font-size:13px;line-height:1.5;margin-top:6px;overflow-wrap:anywhere}.save-bar>div{min-width:0}
+
+.mobile-photo-preview{display:none}@media(max-width:620px){.preview-area{order:0}.mobile-photo-preview:not([hidden]){display:block;margin:18px 0;width:160px;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:#dce6f3}.mobile-photo-preview img{display:block;width:100%;height:100%;object-fit:cover}}
