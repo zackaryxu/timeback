@@ -146,7 +146,7 @@
     e.preventDefault();if(demo||busy||photoBusy||!dirty())return;
     const edit=values();
     for(const l of edit.links){let url;try{url=new URL(l.url);}catch{}if(!l.label||!url||url.protocol!=='https:'||url.username||url.password){const message='Give each link a label and a full https:// address, or remove the unfinished link, then save again.';status(message,true);if(edit.photoUpload)photoStatus(message,true);$(edit.photoUpload?'photo-status':'save-feedback').focus();return;}}
-    busy=true;update();$('save').textContent='Saving…';status('');
+    busy=true;update();$('save').textContent='Saving…';status('');if(edit.photoUpload)photoStatus('Saving your photo…');
     // Lock inputs during the request so a successful response cannot erase newer typing.
     const controls=[...$('profile-form').querySelectorAll('input,textarea,button')];controls.forEach(c=>c.disabled=true);
     try{const result=await request('PUT',{version,...edit});loadProfile(result);const message=testMode?'Test profile saved. Nothing was published.':'Saved. Your public profile will update after publishing, usually in a few minutes. Use View public profile to check it.';status(message);if(edit.photoUpload)photoStatus(message);}
