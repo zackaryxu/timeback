@@ -598,3 +598,69 @@ body:has(.contact-panel[open]){overflow:hidden}
 }
 /* Individual chapter profiles: omit empty portraits; keep directory initials. */
 main > article.page-content.wrap > .person-monogram{display:none}
+
+/* Chapter profile cards: scoped to the chapter publisher's plain profile markup. */
+.page-about main > article.page-content.wrap:has(> .person-role) {
+  position: relative;
+  width: min(820px, calc(100% - 48px));
+  margin: 48px auto 80px;
+  padding: 36px;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  font-size: 17px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.page-about main > article.page-content.wrap:has(> .person-role):has(> .person-portrait img) {
+  padding-left: 236px;
+  min-height: 282px;
+}
+.page-about main > article.page-content.wrap:has(> .person-role) > .person-portrait {
+  position: absolute;
+  top: 36px;
+  left: 36px;
+  width: 168px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 7px;
+}
+.page-about main > article.page-content.wrap:has(> .person-role) > .person-monogram { display: none; }
+.page-about main > article.page-content.wrap:has(> .person-role) > h1 {
+  font-size: clamp(28px, 3vw, 36px);
+  line-height: 1.2;
+  text-align: left;
+  text-wrap: pretty;
+}
+.page-about main > article.page-content.wrap:has(> .person-role) > .person-role {
+  margin: 8px 0 20px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.page-about main > article.page-content.wrap:has(> .person-role) > p:empty { display: none; }
+.page-about main > article.page-content.wrap:has(> .person-role) > p + p { margin-top: 14px; }
+.page-about main > article.page-content.wrap:has(> .person-role) > a[href^="/chapters/"] {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .page-about main > article.page-content.wrap:has(> .person-role),
+  .page-about main > article.page-content.wrap:has(> .person-role):has(> .person-portrait img) {
+    width: calc(100% - 32px);
+    margin: 28px auto 48px;
+    padding: 26px;
+    min-height: 0;
+    font-size: 16px;
+  }
+  .page-about main > article.page-content.wrap:has(> .person-role) > .person-portrait {
+    position: static;
+    width: 112px;
+    margin-bottom: 22px;
+  }
+  .page-about main > article.page-content.wrap:has(> .person-role) > h1 { font-size: 29px; }
+}
+/* End chapter profile cards. */
