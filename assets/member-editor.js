@@ -16,7 +16,9 @@
   const testMode=new URLSearchParams(location.search).get('test')==='1';
   const api=document.querySelector('meta[name="editor-api"]').content.replace(/\/$/,'')+(testMode?'/test':'');
   const storageKey='timeback-member-access'+(testMode?'-test':'');
-  const photoModuleUrl=new URL('./member-photo.js',document.currentScript.src).href;
+  const photoModule=new URL('./member-photo.js',document.currentScript.src);
+  photoModule.search=new URL(document.currentScript.src).search;
+  const photoModuleUrl=photoModule.href;
   let photoTools;
   let key='',profile,version,baseline='',demo=false,photoBitmap=null,photoData=null,busy=false,photoBusy=false,photoSequence=0;
   const demoProfile={id:'preview',name:'Your name',role:'TimeBack team',intro:'Your team introduction appears here.',bio:'I enjoy helping people turn big goals into small, practical steps. At TimeBack, I’m learning to make those conversations engaging and useful.',links:[],photo:null,portraitUrl:null};
