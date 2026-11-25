@@ -42,14 +42,14 @@ for (const [name, code] of Object.entries({
 const reviewedLocations = {
   'timeback-at-school-bf30dc3ac252': ['taipei', 'TW'],
   'timeback-at-epsom-college-malaysia-66c3e6f95784': ['kuala lumpur', 'MY'],
-  'timeback-in-frisco-12618ab97039': ['frisco, united states', 'US', 'TX'],
-  'timeback-in-philadelphia-maryland-70032b7c94c5': ['philadelphia maryland, united states', 'US'],
+  'timeback-in-frisco-12618ab97039': ['frisco united states', 'US', 'TX'],
+  'timeback-in-philadelphia-maryland-70032b7c94c5': ['philadelphia maryland united states', 'US'],
 };
 
 function chapterGeography({ id, location }) {
   const parts = location.split(',').map(normalized).filter(Boolean);
   const [reviewedLabel, reviewedCountry, reviewedState] = reviewedLocations[id] || [];
-  if (parts.join(', ') === reviewedLabel) return [reviewedCountry, reviewedState];
+  if (parts.join(' ') === reviewedLabel) return [reviewedCountry, reviewedState];
 
   const last = parts.at(-1);
   const country = countryCodes.get(last);
